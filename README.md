@@ -14,6 +14,7 @@ Wishlist
 
  - SQL syntax coloring.
  - Result coloring.
+ - Pretty print for multi-line querys.
  - Syntax help as in ipython (SELECT?).
  - Keyword complete with TAB.
  - Custom promt.
