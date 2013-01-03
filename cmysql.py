@@ -7,10 +7,14 @@ import MySQLdb
 
 class Console(cmd.Cmd):
 
-    prompt = "MySQL ➜  "
-    m = MySQLdb.connect('localhost','root', 'xx', 'gca_31')
+    db_user = 'root'
+    db_host = 'localhost'
+    db_pass = 'xx'
+    db_database = 'gca_31'
+    m = MySQLdb.connect(db_host, db_user, db_pass, db_database)
     cursor = m.cursor()
 
+    prompt = db_user+"@"+db_host+"\nDB: "+db_database+" ➜  "
 
     def __init__ (self):
         """Constructor"""
