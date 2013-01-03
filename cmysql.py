@@ -7,6 +7,8 @@ import ConfigParser
 
 class Console(cmd.Cmd):
 
+    config = ConfigParser.ConfigParser()
+    config.read("cmysqlrc")
     db_user = config.get("mysqlserver", "user")
     db_host = config.get("mysqlserver", "host")
     db_pass = config.get("mysqlserver", "pass")

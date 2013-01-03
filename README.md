@@ -14,6 +14,7 @@ Wishlist
 
  - SQL syntax coloring.
  - Result coloring.
+ - Get data connection to the server from rc file or from arguments
  - Pretty print for multi-line querys.
  - Syntax help as in ipython (SELECT?).
  - Keyword complete with TAB.
