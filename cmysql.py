@@ -3,14 +3,14 @@
 
 import cmd
 import MySQLdb
-
+import ConfigParser
 
 class Console(cmd.Cmd):
 
-    db_user = 'root'
-    db_host = 'localhost'
-    db_pass = 'xx'
-    db_database = 'gca_31'
+    db_user = config.get("mysqlserver", "user")
+    db_host = config.get("mysqlserver", "host")
+    db_pass = config.get("mysqlserver", "pass")
+    db_database = config.get("mysqlserver", "database")
     m = MySQLdb.connect(db_host, db_user, db_pass, db_database)
     cursor = m.cursor()
 

@@ -1,0 +1,5 @@
+[mysqlserver]
+host: localhost
+user: root
+pass: xx
+database: gca_31
