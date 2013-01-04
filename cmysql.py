@@ -21,10 +21,13 @@ class Console(cmd.Cmd):
     def __init__ (self):
         """Constructor"""
         cmd.Cmd.__init__(self)
+        
 
     def do_quit (self, s):
         print "Chau vieja!!!"
         return True
+    do_exit = do_quit   
+
 
     def help_quit (self):
         print "Quits the console"
