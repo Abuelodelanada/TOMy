@@ -1,5 +1,11 @@
-[mysqlserver]
+[connection1]
 host: localhost
 user: root
 pass: xx
 database: gca_31
+
+[connection2]
+host: mysqlcentos
+user: root
+pass: xx
+database: gca_jose
