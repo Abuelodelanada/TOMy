@@ -1,41 +1,40 @@
-# A nice code found at http://code.activestate.com/recipes/577202-render-tables-for-text-interface/
-class TableFormat:
-    def __init__(self, *columns):
-        self.columns = columns
-        self.length = max(len(col.data) for col in columns)
-    def get_row(self, rownum=None):
-        for col in self.columns:
-            if rownum is None:
-                yield col.format % col.name
-            else:
-                yield col.format % col.data[rownum]
-    def get_line(self):
-        for col in self.columns:
-            yield '-' * (col.width + 2)
-    def join_n_wrap(self, char, elements):
-        return ' ' + char + char.join(elements) + char
-    def get_rows(self):
-        yield self.join_n_wrap('+', self.get_line())
-        yield self.join_n_wrap('|', self.get_row(None))
-        yield self.join_n_wrap('+', self.get_line())
-        for rownum in range(0, self.length):
-            yield self.join_n_wrap('|', self.get_row(rownum))
-        yield self.join_n_wrap('+', self.get_line())
-    def __str__(self):
-        return '\n'.join(self.get_rows())
-    class Column():
-        LEFT, RIGHT = '-', ''
-        def __init__(self, name, data, align=RIGHT):
-            self.data = data
-            self.name = name
-            self.width = max(len(x) for x in data + [name])
-            self.format = ' %%%s%ds ' % (align, self.width)
+# A code taken from http://code.activestate.com/recipes/577202-render-tables-for-text-interface/
 
-Column = TableFormat.Column
-nums = [ '1', '2', '3', '4' ]
-speeds = [ '100', '10000', '1500', '12' ]
-desc = [ '', 'label 1', 'none', 'very long description' ]
-#print TableFormat(
-#    Column('NUM', nums),
-#    Column('SPEED', speeds),
-#    Column('DESC', desc, align=Column.LEFT))
+class TableFormat:
+    def __init__(self,headers,rows):
+        self.headers=headers
+        self.rows=rows
+        self.nrows=len(self.rows)
+        self.fieldlen=[]
+
+        ncols=len(headers)
+
+        for i in range(ncols):
+            max=0
+            for j in rows:
+                if len(str(j[i]))>max: max=len(str(j[i]))
+            self.fieldlen.append(max)
+
+        for i in range(len(headers)):
+            if len(str(headers[i]))>self.fieldlen[i]: self.fieldlen[i]=len(str(headers[i]))
+
+
+        self.width=sum(self.fieldlen)+(ncols-1)*3+4
+
+    def __str__(self):
+        bar="-"*self.width
+        out=[bar]
+        header=""
+        for i in range(len(self.headers)):
+            header+="| %s" %(str(self.headers[i])) +" "*(self.fieldlen[i]-len(str(self.headers[i])))+" "
+        header+="|"
+        out.append(header)
+        out.append(bar)
+        for i in self.rows:
+            line=""
+            for j in range(len(i)):
+                line+="| %s" %(str(i[j])) +" "*(self.fieldlen[j]-len(str(i[j])))+" "
+            out.append(line+"|")
+
+        out.append(bar)
+        return "\r\n".join(out)

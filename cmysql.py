@@ -87,24 +87,14 @@ class Console(cmd.Cmd):
         This method formats the query output
         TODO: Make it better ;-)
         """
-        columns = len(header)
-        rows = len(result)
-        output = '|'
-        
-        # Header format
-        for column in header:
-            output = output + column[0] + '|'
 
-        output = output + '\n'
+        column_names = list()
+        rows = list(result)
 
-        # Result format
-        for row in result:
-            for c in row:
-                output = output + '|' + c
-
-            output = output + '|\n'
-                        
-        return output
+        for h in header:
+            column_names.append(h[0])
+    
+        print TableFormat.TableFormat(column_names, rows)
 
 
     def default(self, s):
@@ -115,9 +105,7 @@ class Console(cmd.Cmd):
         self.cursor.execute(query)
         header = self.cursor.description
         result = self.cursor.fetchall()
-        
-        formated_result = self.format_output(header, result)
-        print formated_result
+        self.format_output(header, result)
 
         
     do_EOF = do_quit
