@@ -43,7 +43,7 @@ class Console(cmd.Cmd):
             try:
                 connection = MySQLdb.connect(args.host, args.user, args.password, args.database)
                 self.cursor = connection.cursor()
-                self.prompt = args.user+"@"+args.host+"\nDB: "+args.database+" ➜  "
+                self.prompt = self.get_promt(args.user, args.host, args.database)
             except:
                 sys.exit(u"Access denied for user '%s'@'%s'" % (args.user, args.host))
 
@@ -58,12 +58,18 @@ class Console(cmd.Cmd):
                 db_database = config.get(args.connection, "database")
                 connection = MySQLdb.connect(db_host, db_user, db_pass, db_database)
                 self.cursor = connection.cursor()
-                self.prompt = db_user+"@"+db_host+"\nDB: "+db_database+" ➜  "
+                self.prompt = self.get_promt(db_user, db_host, db_database)
             except:
                 sys.exit(u"Access denied for user '%s'@'%s'" % (db_user, db_host))
         else:
             sys.exit(u"Please, use -h option to know about how to use Copado MySQL Client")
 
+    def get_promt(self, user, host, database = 'None'):
+        """
+        Get a promt
+        """
+        promt = user+"@"+host+"\nDB: "+database+" ➜  "
+        return promt
 
 
     def do_quit (self, s):
