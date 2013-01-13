@@ -6,19 +6,29 @@ import sys
 import argparse
 import MySQLdb
 import ConfigParser
+import getpass
 
 class Console(cmd.Cmd):
 
     prompt = ''
+    cursor = ''
 
     def __init__ (self):
         """Constructor"""
         cmd.Cmd.__init__(self)
+        self.arguments()
+
+
+    def arguments(self):
+        """
+        Parse arguments
+        """
         parser = argparse.ArgumentParser(description='Connect to a MySQL server')
-        parser.add_argument("-u", "--user", dest='user', required=True, help="The MySQL user name to use when connecting to the server.")
+        parser.add_argument("-u", "--user", dest='user', help="The MySQL user name to use when connecting to the server.")
         parser.add_argument("-p", "--password", dest='password', help="The password to use when connecting to the server. If you use the short option form (-p), you cannot have a space between the option and the password. If you omit the password value following the --password or -p option on the command line, mysql prompts for one.")
         parser.add_argument("-hs", "--host", dest='host', help="Connect to the MySQL server on the given host.")
         parser.add_argument("-B", "--database", dest='database', help="Database name.")
+        parser.add_argument("-cnt", "--connection", dest='connection', help="Select a conection saved in rc file")
 
         args = parser.parse_args()
         self.connect(args)
@@ -29,21 +39,31 @@ class Console(cmd.Cmd):
         This method is for connect to de database
         """
 
-        if(args.host is not None and args.user is not None and args.password is not None and args.database is not None):
-            m = MySQLdb.connect(args.host, args.user, args.password, args.database)
-            cursor = m.cursor()
-            self.prompt = args.user+"@"+args.host+"\nDB: "+args.database+" ➜  "
+        if(args.host is not None and args.user is not None and args.password is not None and args.database is not None and args.connection is None):
+            try:
+                connection = MySQLdb.connect(args.host, args.user, args.password, args.database)
+                self.cursor = connection.cursor()
+                self.prompt = args.user+"@"+args.host+"\nDB: "+args.database+" ➜  "
+            except:
+                sys.exit(u"Access denied for user '%s'@'%s'" % (args.user, args.host))
 
-        else:
+        elif(args.connection is not None):
+            pw = getpass.getpass()
             config = ConfigParser.ConfigParser()
             config.read("cmysqlrc")
-            db_user = config.get("connection1", "user")
-            db_host = config.get("connection1", "host")
-            db_pass = config.get("connection1", "pass")
-            db_database = config.get("connection1", "database")
-            m = MySQLdb.connect(db_host, db_user, db_pass, db_database)
-            cursor = m.cursor()
-            self.prompt = db_user+"@"+db_host+"\nDB: "+db_database+" ➜  "
+            db_user = config.get(args.connection, "user")
+            db_host = config.get(args.connection, "host")
+            db_pass = pw
+            try:
+                db_database = config.get(args.connection, "database")
+                connection = MySQLdb.connect(db_host, db_user, db_pass, db_database)
+                self.cursor = connection.cursor()
+                self.prompt = db_user+"@"+db_host+"\nDB: "+db_database+" ➜  "
+            except:
+                sys.exit(u"Access denied for user '%s'@'%s'" % (db_user, db_host))
+        else:
+            sys.exit(u"Please, use -h option to know about how to use Copado MySQL Client")
+
 
 
     def do_quit (self, s):
