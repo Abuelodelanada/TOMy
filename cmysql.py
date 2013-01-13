@@ -51,7 +51,7 @@ class Console(cmd.Cmd):
         elif(args.connection is not None):
             pw = getpass.getpass()
             config = ConfigParser.ConfigParser()
-            config.read("cmysqlrc")
+            config.read(".connections")
             db_user = config.get(args.connection, "user")
             db_host = config.get(args.connection, "host")
             db_pass = pw
