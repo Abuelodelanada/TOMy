@@ -7,6 +7,7 @@ import argparse
 import MySQLdb
 import ConfigParser
 import getpass
+import TableFormat
 
 class Console(cmd.Cmd):
 
