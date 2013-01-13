@@ -1,10 +1,10 @@
-Copado MySQL client
-===================
+TOMy: Terminal Of MySQL
+=======================
 
 My own MySQL client, which I hope to have more features than the original ;-)
 
 
-At this time, Copado MySQL client is in alpha, anyway it's working in my machine with too limited functionality.
+At this time, TOMy is in alpha, anyway it's working in my machine with too limited functionality.
 
 _First Run:_ 
 
