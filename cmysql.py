@@ -59,18 +59,48 @@ class Console(cmd.Cmd):
                 db_database = config.get(args.connection, "database")
                 connection = MySQLdb.connect(db_host, db_user, db_pass, db_database)
                 self.cursor = connection.cursor()
-                self.prompt = self.get_promt(db_user, db_host, db_database)
+                self.prompt = self.get_prompt(db_user, db_host, db_database)
             except:
                 sys.exit(u"Access denied for user '%s'@'%s'" % (db_user, db_host))
         else:
-            sys.exit(u"Please, use -h option to know about how to use Copado MySQL Client")
+            sys.exit(u"Please, use -h option to know about how to use TOMy")
 
-    def get_promt(self, user, host, database = 'None'):
+    def get_prompt(self, user, host, database = 'None'):
         """
-        Get a promt
+        Get a prompt
         """
-        promt = user+"@"+host+"\nDB: "+database+" ➜  "
-        return promt
+        # Custom settings if you don't have set up in .config file
+        prompt_config_dict = {'show_user':False, 'show_host':False, 'show_db':False, 'prompt_char': '>>>'}
+
+        try:
+            prompt_config = ConfigParser.ConfigParser()
+            prompt_config.read('.config')
+            prompt_config_dict['show_user'] = prompt_config.get('prompt', "show_user")
+            prompt_config_dict['show_host'] = prompt_config.get('prompt', "show_host")
+            prompt_config_dict['show_db'] = prompt_config.get('prompt', "show_db")
+            prompt_config_dict['prompt_char'] = prompt_config.get('prompt', "prompt_char")
+        except:
+            # TODO: use exceptions in a decent way
+            print 'Wrong section definition'
+
+
+        if(prompt_config_dict['show_user'] == 'True'):
+            if(prompt_config_dict['show_host'] == 'True'):
+                prompt = user+'@'+host
+            else:
+                prompt = user
+        else:
+            if(prompt_config_dict['show_host'] == 'True'):
+                prompt = host
+            else:
+                prompt = ''
+
+        if(prompt_config_dict['show_db'] == 'True'):
+            prompt = prompt+'\nDB: '+database+' '
+
+        prompt = prompt+prompt_config_dict['prompt_char']+' '
+        #prompt = user+"@"+host+"\nDB: "+database+" ➜  "
+        return prompt
 
 
     def do_quit (self, s):
