@@ -6,12 +6,13 @@ My own MySQL client, which I hope to have more features than the original ;-)
 
 At this time, Copado MySQL client is in alpha, anyway it's working in my machine with too limited functionality.
 
-First Run
+_First Run:_ 
+
 
 ![First run](https://raw.github.com/Abuelodelanada/copado_mysql_client/master/img/first_run.png "First run")
 
 
-Second Run
+_Second Run:_
 
 ![Second run](https://raw.github.com/Abuelodelanada/copado_mysql_client/master/img/second_run.png "Second run")
 
