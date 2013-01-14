@@ -9,12 +9,12 @@ At this time, TOMy is in alpha, anyway it's working in my machine with too limit
 _First Run:_ 
 
 
-![First run](https://raw.github.com/Abuelodelanada/copado_mysql_client/master/img/first_run.png "First run")
+![First run](https://raw.github.com/Abuelodelanada/tomy/master/img/first_run.png "First run")
 
 
 _Second Run:_
 
-![Second run](https://raw.github.com/Abuelodelanada/copado_mysql_client/master/img/second_run.png "Second run")
+![Second run](https://raw.github.com/Abuelodelanada/tomy/master/img/second_run.png "Second run")
 
 Wishlist
 --------
