@@ -13,6 +13,7 @@ class Console(cmd.Cmd):
 
     prompt = ''
     cursor = ''
+    connection = ''
 
     def __init__ (self):
         """Constructor"""
@@ -42,8 +43,9 @@ class Console(cmd.Cmd):
 
         if(args.host is not None and args.user is not None and args.password is not None and args.database is not None and args.connection is None):
             try:
-                connection = MySQLdb.connect(args.host, args.user, args.password, args.database)
-                self.cursor = connection.cursor()
+                self.connection = MySQLdb.connect(args.host, args.user, args.password, args.database)
+                self.cursor = self.connection.cursor()
+                self.server_info()
                 self.prompt = self.get_promt(args.user, args.host, args.database)
             except:
                 sys.exit(u"Access denied for user '%s'@'%s'" % (args.user, args.host))
@@ -57,8 +59,9 @@ class Console(cmd.Cmd):
             db_pass = pw
             try:
                 db_database = config.get(args.connection, "database")
-                connection = MySQLdb.connect(db_host, db_user, db_pass, db_database)
-                self.cursor = connection.cursor()
+                self.connection = MySQLdb.connect(db_host, db_user, db_pass, db_database)
+                self.cursor = self.connection.cursor()
+                self.server_info()
                 self.prompt = self.get_prompt(db_user, db_host, db_database)
             except:
                 sys.exit(u"Access denied for user '%s'@'%s'" % (db_user, db_host))
@@ -99,12 +102,21 @@ class Console(cmd.Cmd):
             prompt = prompt+'\nDB: '+database+' '
 
         prompt = prompt+prompt_config_dict['prompt_char']+' '
-        #prompt = user+"@"+host+"\nDB: "+database+" ➜  "
         return prompt
+
+    def server_info(self):
+        """
+        Shows the server info
+        """
+        welcome = 'Welcome to TOMy!'
+        server_info = self.connection.get_server_info()
+        print welcome
+        print 'Server version: '+server_info+'\n'
 
 
     def do_quit (self, s):
         print "Chau vieja!!!"
+        self.connection.close()
         return True
     do_exit = do_quit   
 
@@ -135,8 +147,19 @@ class Console(cmd.Cmd):
         self.cursor.execute(query)
         header = self.cursor.description
         result = self.cursor.fetchall()
-        self.format_output(header, result)
 
+        if(header is not None):
+            self.format_output(header, result)
+
+        rows_count = self.cursor.rowcount
+        rows_modified = self.connection.info()
+
+        if(rows_modified is not None):
+            print rows_modified + '\n'
+            #TODO: Is this the best site to do this?
+            self.connection.autocommit(True)
+        else:
+            print str(rows_count) + ' rows\n'
         
     do_EOF = do_quit
     help_EOF = help_quit
@@ -144,6 +167,6 @@ class Console(cmd.Cmd):
 if __name__ == "__main__":
     console = Console()
     try:
-        console.cmdloop("Salú la barra! Bienvenido a Copado MySQL client\n")
+        console.cmdloop()
     except KeyboardInterrupt:
         console.do_quit(None)
