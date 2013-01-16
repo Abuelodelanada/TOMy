@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import cmd
@@ -14,6 +14,9 @@ class Console(cmd.Cmd):
     prompt = ''
     cursor = ''
     connection = ''
+    connection_data = {'host':'', 'user':'', 'database':''}
+    databases = []
+
 
     def __init__ (self):
         """Constructor"""
@@ -46,25 +49,29 @@ class Console(cmd.Cmd):
                 self.connection = MySQLdb.connect(args.host, args.user, args.password, args.database)
                 self.cursor = self.connection.cursor()
                 self.server_info()
-                self.prompt = self.get_promt(args.user, args.host, args.database)
+                self.connection_data['host'] = args.host
+                self.connection_data['user'] = args.user
+                self.connection_data['database'] = args.database
+                self.prompt = self.get_prompt(self.connection_data['user'], self.connection_data['host'], self.connection_data['database'])
+                self.get_databases()
             except:
-                sys.exit(u"Access denied for user '%s'@'%s'" % (args.user, args.host))
+                sys.exit(u"Access denied for user '%s'@'%s'" % (self.connection_data['user'], self.connection_data['host']))
 
         elif(args.connection is not None):
-            pw = getpass.getpass()
+            db_pass = getpass.getpass()
             config = ConfigParser.ConfigParser()
             config.read(".connections")
-            db_user = config.get(args.connection, "user")
-            db_host = config.get(args.connection, "host")
-            db_pass = pw
+            self.connection_data['user'] = config.get(args.connection, "user")
+            self.connection_data['host'] = config.get(args.connection, "host")
+            self.connection_data['database'] = config.get(args.connection, "database")
             try:
-                db_database = config.get(args.connection, "database")
-                self.connection = MySQLdb.connect(db_host, db_user, db_pass, db_database)
+                self.connection = MySQLdb.connect(self.connection_data['host'], self.connection_data['user'], db_pass, self.connection_data['database'])
                 self.cursor = self.connection.cursor()
                 self.server_info()
-                self.prompt = self.get_prompt(db_user, db_host, db_database)
+                self.prompt = self.get_prompt(self.connection_data['user'], self.connection_data['host'], self.connection_data['database'])
+                self.get_databases()
             except:
-                sys.exit(u"Access denied for user '%s'@'%s'" % (db_user, db_host))
+                sys.exit(u"Access denied for user '%s'@'%s'" % (self.connection_data['user'], self.connection_data['host']))
         else:
             sys.exit(u"Please, use -h option to know about how to use TOMy")
 
@@ -74,6 +81,10 @@ class Console(cmd.Cmd):
         """
         # Custom settings if you don't have set up in .config file
         prompt_config_dict = {'show_user':False, 'show_host':False, 'show_db':False, 'prompt_char': '>>>'}
+
+        self.connection_data['host'] = host
+        self.connection_data['user'] = user
+        self.connection_data['database'] = database
 
         try:
             prompt_config = ConfigParser.ConfigParser()
@@ -89,17 +100,17 @@ class Console(cmd.Cmd):
 
         if(prompt_config_dict['show_user'] == 'True'):
             if(prompt_config_dict['show_host'] == 'True'):
-                prompt = user+'@'+host
+                prompt = self.connection_data['user']+'@'+self.connection_data['host']
             else:
-                prompt = user
+                prompt = self.connection_data['user']
         else:
             if(prompt_config_dict['show_host'] == 'True'):
-                prompt = host
+                prompt = self.connection_data['host']
             else:
                 prompt = ''
 
         if(prompt_config_dict['show_db'] == 'True'):
-            prompt = prompt+'\nDB: '+database+' '
+            prompt = prompt+'\nDB: ['+self.connection_data['database']+'] '
 
         prompt = prompt+prompt_config_dict['prompt_char']+' '
         return prompt
@@ -113,6 +124,42 @@ class Console(cmd.Cmd):
         print welcome
         print 'Server version: '+server_info+'\n'
 
+    def get_databases(self):
+        """
+        Get the names of the databases in the server.
+        """
+        query = 'SELECT SCHEMA_NAME FROM information_schema.SCHEMATA'
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        for db in result:
+            self.databases.append(db[0])
+            
+            
+
+    def do_USE(self, db):
+        """
+        Change the database
+        """
+        self.default('USE '+db)
+        self.connection_data['database'] = db
+        self.prompt = self.get_prompt(self.connection_data['user'], self.connection_data['host'], self.connection_data['database'])
+
+    do_use = do_USE
+
+
+    def complete_USE(self, text, line, begidx, endidx):
+        """
+        """
+        if not text:
+            completions = self.databases[:]
+        else:
+            completions = [ d
+                            for d in self.databases
+                            if d.startswith(text)
+                            ]
+        return completions
+        
+    complete_use = complete_USE
 
     def do_quit (self, s):
         print "Chau vieja!!!"
