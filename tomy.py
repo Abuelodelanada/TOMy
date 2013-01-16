@@ -5,6 +5,7 @@ import cmd
 import sys
 import argparse
 import MySQLdb
+import _mysql_exceptions
 import ConfigParser
 import getpass
 import TableFormat
@@ -191,22 +192,27 @@ class Console(cmd.Cmd):
         Override the superclass method default to get the imput
         """
         query = s
-        self.cursor.execute(query)
-        header = self.cursor.description
-        result = self.cursor.fetchall()
+        try:
+            self.cursor.execute(query)
+            header = self.cursor.description
+            result = self.cursor.fetchall()
 
-        if(header is not None):
-            self.format_output(header, result)
+            if(header is not None):
+                self.format_output(header, result)
 
-        rows_count = self.cursor.rowcount
-        rows_modified = self.connection.info()
+            rows_count = self.cursor.rowcount
+            rows_modified = self.connection.info()
 
-        if(rows_modified is not None):
-            print rows_modified + '\n'
-            #TODO: Is this the best site to do this?
-            self.connection.autocommit(True)
-        else:
-            print str(rows_count) + ' rows\n'
+            if(rows_modified is not None):
+                print rows_modified + '\n'
+                #TODO: Is this the best site to do this?
+                self.connection.autocommit(True)
+            else:
+                print str(rows_count) + ' rows\n'
+
+        except _mysql_exceptions.ProgrammingError, e:
+            print 'ERROR ' +str(e[0])+': '+e[1]+'\n'
+
         
     do_EOF = do_quit
     help_EOF = help_quit
