@@ -190,6 +190,18 @@ class Console(cmd2.Cmd):
     complete_drop = complete_DROP
 
 
+    def do_SHOW(self, parameter):
+        """
+        MySQL SHOW command
+        """
+        self.default('SHOW '+parameter)
+
+    do_show = do_SHOW
+
+
+
+
+
     def do_quit (self, s):
         print "Chau vieja!!!"
         self.connection.close()
@@ -244,6 +256,10 @@ class Console(cmd2.Cmd):
         
     do_EOF = do_quit
     help_EOF = help_quit
+
+    def cmdloop(self):
+        self._cmdloop()
+
 
 if __name__ == "__main__":
     console = Console()
