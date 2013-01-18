@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import cmd
+import cmd2
 import sys
 import argparse
 import MySQLdb
@@ -10,7 +10,7 @@ import ConfigParser
 import getpass
 import TableFormat
 
-class Console(cmd.Cmd):
+class Console(cmd2.Cmd):
 
     prompt = ''
     cursor = ''
@@ -21,7 +21,7 @@ class Console(cmd.Cmd):
 
     def __init__ (self):
         """Constructor"""
-        cmd.Cmd.__init__(self)
+        cmd2.Cmd.__init__(self)
         self.arguments()
 
 
@@ -34,7 +34,7 @@ class Console(cmd.Cmd):
         parser.add_argument("-p", "--password", dest='password', help="The password to use when connecting to the server. If you use the short option form (-p), you cannot have a space between the option and the password. If you omit the password value following the --password or -p option on the command line, mysql prompts for one.")
         parser.add_argument("-hs", "--host", dest='host', help="Connect to the MySQL server on the given host.")
         parser.add_argument("-B", "--database", dest='database', help="Database name.")
-        parser.add_argument("-cnt", "--connection", dest='connection', help="Select a conection saved in rc file")
+        parser.add_argument("-cnt", "--connection", dest='connection', help="Select a conection saved in .connections file")
 
         args = parser.parse_args()
         self.connect(args)
