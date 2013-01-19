@@ -1,9 +1,0 @@
-[connection1]
-host: localhost
-user: root
-database: gca_31
-
-[connection2]
-host: mysqlcentos
-user: root
-database: gca_jose
