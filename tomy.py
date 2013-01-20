@@ -16,6 +16,8 @@ class Console(cmd2.Cmd):
     connection = ''
     connection_data = {'host':'', 'user':'', 'database':''}
     databases = []
+    terminators = [';', '\G', '\g']
+    multilineCommands = ['ALTER', 'ANALYZE', 'CREATE', 'DELETE', 'EXPLAIN', 'INSERT', 'SELECT', 'SHOW', 'UPDATE', 'USE']
 
     def __init__ (self):
         """Constructor"""
@@ -220,7 +222,35 @@ class Console(cmd2.Cmd):
     do_show = do_SHOW
 
 
+    def default(self, s):
+        """
+        Override the superclass method default to get the imput
+        """
 
+        query = s
+        try:
+            self.cursor.execute(query)
+            header = self.cursor.description
+            result = self.cursor.fetchall()
+
+            if(header is not None):
+                self.format_output(header, result)
+
+            rows_count = self.cursor.rowcount
+            rows_modified = self.connection.info()
+
+            if(rows_modified is not None):
+                print rows_modified + '\n'
+                #TODO: Is this the best site to do this?
+                self.connection.autocommit(True)
+            else:
+                print str(rows_count) + ' rows\n'
+
+        except _mysql_exceptions.ProgrammingError, e:
+            print 'ERROR ' +str(e[0])+': '+e[1]+'\n'
+
+
+    do_ = default
 
 
     def do_quit (self, s):
@@ -299,33 +329,6 @@ class Console(cmd2.Cmd):
 
         out.append(bar)
         print "\r\n".join(out)
-
-
-    def default(self, s):
-        """ 
-        Override the superclass method default to get the imput
-        """
-        query = s
-        try:
-            self.cursor.execute(query)
-            header = self.cursor.description
-            result = self.cursor.fetchall()
-
-            if(header is not None):
-                self.format_output(header, result)
-
-            rows_count = self.cursor.rowcount
-            rows_modified = self.connection.info()
-
-            if(rows_modified is not None):
-                print rows_modified + '\n'
-                #TODO: Is this the best site to do this?
-                self.connection.autocommit(True)
-            else:
-                print str(rows_count) + ' rows\n'
-
-        except _mysql_exceptions.ProgrammingError, e:
-            print 'ERROR ' +str(e[0])+': '+e[1]+'\n'
 
         
     do_EOF = do_quit
