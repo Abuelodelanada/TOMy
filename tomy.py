@@ -8,7 +8,6 @@ import MySQLdb
 import _mysql_exceptions
 import ConfigParser
 import getpass
-import TableFormat
 
 class Console(cmd2.Cmd):
 
@@ -18,11 +17,36 @@ class Console(cmd2.Cmd):
     connection_data = {'host':'', 'user':'', 'database':''}
     databases = []
 
-
     def __init__ (self):
         """Constructor"""
         cmd2.Cmd.__init__(self)
         self.arguments()
+
+        # Custom settings if you don't have set up in .config file
+        self.color_config_dict = {'borders': 'red', 'border_bold':True, 'result':None, 'result_bold': False}
+        self.colors = ('red', 'cyan', 'green', 'magenta', 'blue')
+        self.color_config = ConfigParser.ConfigParser()
+        self.color_config.read('.config')
+
+        try:
+            self.color_config_dict['borders'] = self.color_config.get('colors', "borders")
+        except:
+            pass
+
+        try:
+            self.color_config_dict['borders_bold'] = self.color_config.get('colors', "borders_bold")
+        except:
+            pass
+
+        try:
+            self.color_config_dict['result'] = self.color_config.get('colors', "result")
+        except:
+            pass
+
+        try:
+            self.color_config_dict['result_bold'] = self.color_config.get('colors', "result_bold")
+        except:
+            pass
 
 
     def arguments(self):
@@ -136,8 +160,6 @@ class Console(cmd2.Cmd):
         for db in result:
             self.databases.append(db[0])
             
-            
-
     def do_USE(self, db):
         """
         Change the database
@@ -162,7 +184,6 @@ class Console(cmd2.Cmd):
         return completions
         
     complete_use = complete_USE
-
 
     def do_DROP(self, db):
         """
@@ -212,19 +233,72 @@ class Console(cmd2.Cmd):
     def help_quit (self):
         print "Quits the console"
 
-    def format_output(self, header, result):
+    def format_output(self, headers_tuple, result):
         """
         This method formats the query output
-        TODO: Make it better ;-)
+        Code inspired in http://code.activestate.com/recipes/577202-render-tables-for-text-interface/
         """
 
         column_names = list()
         rows = list(result)
 
-        for h in header:
+        for h in headers_tuple:
             column_names.append(h[0])
-    
-        print TableFormat.TableFormat(column_names, rows)
+
+        headers = column_names
+        nrows=len(rows)
+        fieldlen=[]
+
+        ncols=len(headers)
+
+        for i in range(ncols):
+            max=0
+            for j in rows:
+                if len(str(j[i]))>max: max=len(str(j[i]))
+            fieldlen.append(max)
+
+        for i in range(len(headers)):
+            if len(str(headers[i]))>fieldlen[i]: fieldlen[i]=len(str(headers[i]))
+
+
+        width=sum(fieldlen)+(ncols-1)*3+4
+
+        bar="-"*(width-2)
+        bar = "+"+bar+"+"
+        pipe = '|'
+
+        if(self.color_config_dict['borders'] in self.colors):
+            bar = self.colorize(bar, self.color_config_dict['borders'])
+            pipe = self.colorize(pipe, self.color_config_dict['borders'])
+
+        if(self.color_config_dict['borders_bold'] == 'True'):
+            bar = self.colorize(bar, 'bold')
+            pipe = self.colorize(pipe, 'bold')
+
+        out=[bar]
+        header=""
+        for i in range(len(headers)):
+            header+=pipe+" %s" %self.colorize((str(headers[i])), 'bold') +" "*(fieldlen[i]-len(str(headers[i])))+" "
+        header+=pipe
+        out.append(header)
+        out.append(bar)
+        for i in rows:
+            line=""
+            for j in range(len(i)):
+                if(self.color_config_dict['result'] in self.colors):
+                    r = self.colorize(str(i[j]), self.color_config_dict['result'])
+                else:
+                    r = str(i[j])
+
+                if(self.color_config_dict['result_bold'] == 'True'):
+                    r = self.colorize(r, 'bold')
+
+                line+= pipe+" %s" %(r) +" "*(fieldlen[j]-len(str(i[j])))+" "
+
+            out.append(line+pipe)
+
+        out.append(bar)
+        print "\r\n".join(out)
 
 
     def default(self, s):
