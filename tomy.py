@@ -500,12 +500,24 @@ class Console(cmd2.Cmd):
                 if(self.color_config_dict['result_bold'] == 'True'):
                     r = self.colorize(r, 'bold')
 
-                line+= pipe+" %s" %(r) +" "*(fieldlen[j]-len(str(i[j])))+" "
+                if(self.is_number(str(i[j])) is True):
+                    line+= pipe+" "*(fieldlen[j]-len(str(i[j])))+" %s " %(r)
+                else:
+                    line+= pipe+" %s" %(r) +" "*(fieldlen[j]-len(str(i[j])))+" "
+
 
             out.append(line+pipe)
 
         out.append(bar)
         print "\r\n".join(out)
+
+
+    def is_number(self, s):
+        try:
+            float(s)
+            return True
+        except ValueError:
+            return False
 
         
     do_EOF = do_quit
