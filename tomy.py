@@ -16,6 +16,8 @@ class Console(cmd2.Cmd):
     connection = ''
     connection_data = {'host':'', 'user':'', 'database':''}
     databases = []
+    tables = []
+    columns = []
     terminators = [';', '\G', '\g']
     multilineCommands = ['ALTER', 'ANALYZE', 'CREATE', 'DELETE', 'EXPLAIN', 'INSERT', 'SELECT', 'SHOW', 'UPDATE', 'USE']
 
@@ -81,6 +83,8 @@ class Console(cmd2.Cmd):
                 self.connection_data['database'] = args.database
                 self.prompt = self.get_prompt(self.connection_data['user'], self.connection_data['host'], self.connection_data['database'])
                 self.get_databases()
+                self.get_tables(str(self.connection_data['database']))
+                self.get_columns(str(self.connection_data['database']))
             except:
                 sys.exit(u"Access denied for user '%s'@'%s'" % (self.connection_data['user'], self.connection_data['host']))
 
@@ -97,6 +101,8 @@ class Console(cmd2.Cmd):
                 self.server_info()
                 self.prompt = self.get_prompt(self.connection_data['user'], self.connection_data['host'], self.connection_data['database'])
                 self.get_databases()
+                self.get_tables(str(self.connection_data['database']))
+                self.get_columns(str(self.connection_data['database']))
             except:
                 sys.exit(u"Access denied for user '%s'@'%s'" % (self.connection_data['user'], self.connection_data['host']))
         else:
@@ -161,7 +167,60 @@ class Console(cmd2.Cmd):
         result = self.cursor.fetchall()
         for db in result:
             self.databases.append(db[0])
-            
+
+    def get_tables(self, db):
+        """
+        Get the tables names
+        """
+        query = '''SELECT information_schema.TABLES.TABLE_NAME
+                   FROM information_schema.TABLES
+                   WHERE information_schema.TABLES.TABLE_SCHEMA = "'''+db+'"'
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        self.tables = []
+        for table in result:
+            self.tables.append(table[0])
+
+    def get_columns(self, db):
+        """
+        Get the fields names
+        """
+        query = '''SELECT information_schema.COLUMNS.COLUMN_NAME
+                   FROM information_schema.COLUMNS
+                   WHERE information_schema.COLUMNS.TABLE_SCHEMA = "'''+db+'"'
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        self.columns = []
+        for column in result:
+            self.columns.append(column[0])
+
+
+    def do_SELECT(self, stm):
+        """
+        MySQL SELECT statement
+        """
+        self.default('SELECT '+stm)
+
+    do_select = do_SELECT
+
+
+    def complete_SELECT(self, text, line, begidx, endidx):
+        if not text:
+            completions = self.tables[:] + self.columns[:]
+        else:
+            completions = [ t
+                            for t in self.tables
+                            if t.startswith(text)
+                            ] + [
+                            c
+                            for c in self.columns
+                            if c.startswith(text)
+                            ]
+        return completions
+
+    complete_select = complete_SELECT
+
+
     def do_USE(self, db):
         """
         Change the database
@@ -169,6 +228,8 @@ class Console(cmd2.Cmd):
         self.default('USE '+db)
         self.connection_data['database'] = db
         self.prompt = self.get_prompt(self.connection_data['user'], self.connection_data['host'], self.connection_data['database'])
+        self.get_tables(db)
+        self.get_columns(db)
 
     do_use = do_USE
 
@@ -246,8 +307,19 @@ class Console(cmd2.Cmd):
             else:
                 print str(rows_count) + ' rows\n'
 
-        except _mysql_exceptions.ProgrammingError, e:
-            print 'ERROR ' +str(e[0])+': '+e[1]+'\n'
+        except (_mysql_exceptions.DataError,
+                _mysql_exceptions.IntegrityError,
+                _mysql_exceptions.MySQLError,
+                _mysql_exceptions.ProgrammingError,
+                _mysql_exceptions.DatabaseError,
+                _mysql_exceptions.InterfaceError,
+                _mysql_exceptions.NotSupportedError,
+                _mysql_exceptions.Warning,
+                _mysql_exceptions.Error,
+                _mysql_exceptions.InternalError,
+                _mysql_exceptions.OperationalError), e:
+
+            print self.colorize(self.colorize('\nERROR ' +str(e[0]), 'bold')+': '+e[1]+'\n', 'red')
 
 
     do_ = default
