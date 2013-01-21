@@ -19,7 +19,7 @@ class Console(cmd2.Cmd):
     tables = []
     columns = []
     terminators = [';', '\G', '\g']
-    multilineCommands = ['ALTER', 'ANALYZE', 'CREATE', 'DELETE', 'EXPLAIN', 'INSERT', 'SELECT', 'SHOW', 'UPDATE', 'USE']
+    multilineCommands = ['ALTER', 'ANALYZE', 'CREATE', 'DELETE', 'DESC', 'EXPLAIN', 'INSERT', 'SELECT', 'SHOW', 'UPDATE', 'USE']
 
     def __init__ (self):
         """Constructor"""
@@ -294,6 +294,24 @@ class Console(cmd2.Cmd):
     complete_insert = complete_INSERT
         
 
+    def do_DESC(self, stm):
+        """
+        """
+        self.default('DESC '+stm)
+
+    do_desc = do_DESC
+
+    def complete_DESC(self, text, line, begidx, endidx):
+        if not text:
+            completions = self.tables[:]
+        else:
+            completions = [ t
+                            for t in self.tables
+                            if t.startswith(text)
+                            ]
+        return completions
+
+    complete_desc = complete_DESC
 
 
     def do_USE(self, db):
