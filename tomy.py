@@ -14,7 +14,7 @@ class Console(cmd2.Cmd):
     prompt = ''
     cursor = ''
     connection = ''
-    connection_data = {'host':'', 'user':'', 'database':''}
+    connection_data = {'host':'', 'user':'', 'database':'', 'port':3306}
     databases = []
     tables = []
     columns = []
@@ -63,7 +63,8 @@ class Console(cmd2.Cmd):
         parser.add_argument("-u", "--user", dest='user', help="The MySQL user name to use when connecting to the server.")
         parser.add_argument("-p", "--password", dest='password', help="The password to use when connecting to the server. If you use the short option form (-p), you cannot have a space between the option and the password. If you omit the password value following the --password or -p option on the command line, mysql prompts for one.")
         parser.add_argument("-hs", "--host", dest='host', help="Connect to the MySQL server on the given host.")
-        parser.add_argument("-B", "--database", dest='database', help="Database name.")
+        parser.add_argument("-D", "--database", dest='database', help="Database name.")
+        parser.add_argument("-P", "--port", dest='port', help="The TCP/IP port number to use for the connection.")
         parser.add_argument("-cnt", "--connection", dest='connection', help="Select a conection saved in .connections file")
 
         args = parser.parse_args()
@@ -75,14 +76,37 @@ class Console(cmd2.Cmd):
         This method is for connect to de database
         """
 
-        if(args.host is not None and args.user is not None and args.password is not None and args.database is not None and args.connection is None):
+        if(args.user is not None and args.connection is None):
+
+            if(args.password is None):
+                db_pass = getpass.getpass()
+            else:
+                db_pass = args.password
+            if(args.host is None):
+                db_host = 'localhost'
+            else:
+                db_host = args.host
+            if(args.database is None):
+                db = ''
+            else:
+                db = args.database
+            if(args.port is None):
+                db_port = 3306
+            else:
+                db_port = args.port
+
             try:
-                self.connection = MySQLdb.connect(args.host, args.user, args.password, args.database)
+                self.connection = MySQLdb.connect(host=db_host,
+                                                  user=args.user,
+                                                  passwd=db_pass,
+                                                  db=db,
+                                                  port=db_port)
                 self.cursor = self.connection.cursor()
                 self.server_info()
-                self.connection_data['host'] = args.host
+                self.connection_data['host'] = db_host
                 self.connection_data['user'] = args.user
-                self.connection_data['database'] = args.database
+                self.connection_data['database'] = db
+                self.connection_data['port'] = db_port
                 self.prompt = self.get_prompt(self.connection_data['user'], self.connection_data['host'], self.connection_data['database'])
                 self.get_databases()
                 self.get_tables(str(self.connection_data['database']))
@@ -99,7 +123,17 @@ class Console(cmd2.Cmd):
             self.connection_data['host'] = config.get(args.connection, "host")
             self.connection_data['database'] = config.get(args.connection, "database")
             try:
-                self.connection = MySQLdb.connect(self.connection_data['host'], self.connection_data['user'], db_pass, self.connection_data['database'])
+                self.connection_data['port'] = config.get(args.connection, 'port')
+            except:
+                pass
+
+            try:
+                self.connection = MySQLdb.connect(host=self.connection_data['host'],
+                                                  user=self.connection_data['user'],
+                                                  passwd=db_pass,
+                                                  db=self.connection_data['database'],
+                                                  port=self.connection_data['port']
+                                                  )
                 self.cursor = self.connection.cursor()
                 self.server_info()
                 self.prompt = self.get_prompt(self.connection_data['user'], self.connection_data['host'], self.connection_data['database'])
