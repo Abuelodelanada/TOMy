@@ -3,18 +3,18 @@ TOMy: Terminal Of MySQL
 
 My own MySQL client, which I hope to have more features than the original ;-)
 
+Now, I have implemented the following features:
 
-At this time, TOMy is in alpha, anyway it's working in my machine with too limited functionality.
+ - Save data connections to .connections file
+ - Configurable color results in .config file
+ - Configurable prompt in .config file
+ - Autocomplete sentences with databases, tables and fields names.
+ - Save (recover and remove) executed queries to saved_queries.txt file.
 
-_First Run:_ 
+
+![TOMy running](https://raw.github.com/Abuelodelanada/tomy/master/img/example.png "TOMy running")
 
 
-![First run](https://raw.github.com/Abuelodelanada/tomy/master/img/first_run.png "First run")
-
-
-_Second Run:_
-
-![Second run](https://raw.github.com/Abuelodelanada/tomy/master/img/second_run.png "Second run")
 
 Wishlist
 --------
