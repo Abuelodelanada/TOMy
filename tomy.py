@@ -122,6 +122,7 @@ class Console(cmd2.Cmd):
             self.connection_data['user'] = config.get(args.connection, "user")
             self.connection_data['host'] = config.get(args.connection, "host")
             self.connection_data['database'] = config.get(args.connection, "database")
+            self.connection_data['port'] = config.get(args.connection, "port")
             try:
                 self.connection_data['port'] = config.get(args.connection, 'port')
             except:
@@ -132,7 +133,7 @@ class Console(cmd2.Cmd):
                                                   user=self.connection_data['user'],
                                                   passwd=db_pass,
                                                   db=self.connection_data['database'],
-                                                  port=self.connection_data['port']
+                                                  port=int(self.connection_data['port'])
                                                   )
                 self.cursor = self.connection.cursor()
                 self.server_info()
