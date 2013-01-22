@@ -192,10 +192,10 @@ class Console(cmd2.Cmd):
         """
         Shows the server info
         """
-        welcome = 'Welcome to TOMy!'
+        welcome = '.:: Welcome to TOMy!'
         server_info = self.connection.get_server_info()
         print welcome
-        print 'Server version: '+server_info+'\n'
+        print '.:: Server version: '+self.colorize(server_info, 'green')+'\n'
 
     def get_databases(self):
         """
