@@ -20,6 +20,8 @@ class Console(cmd2.Cmd):
     columns = []
     terminators = [';', '\G', '\g']
     multilineCommands = ['ALTER', 'ANALYZE', 'CREATE', 'DELETE', 'DESC', 'EXPLAIN', 'INSERT', 'SELECT', 'SHOW', 'UPDATE', 'USE']
+    saved_queries_file = 'saved_queries.txt'
+    saved_queries = []
 
     def __init__ (self):
         """Constructor"""
@@ -85,6 +87,7 @@ class Console(cmd2.Cmd):
                 self.get_databases()
                 self.get_tables(str(self.connection_data['database']))
                 self.get_columns(str(self.connection_data['database']))
+                self.get_saved_queries()
             except:
                 sys.exit(u"Access denied for user '%s'@'%s'" % (self.connection_data['user'], self.connection_data['host']))
 
@@ -103,6 +106,7 @@ class Console(cmd2.Cmd):
                 self.get_databases()
                 self.get_tables(str(self.connection_data['database']))
                 self.get_columns(str(self.connection_data['database']))
+                self.get_saved_queries()
             except:
                 sys.exit(u"Access denied for user '%s'@'%s'" % (self.connection_data['user'], self.connection_data['host']))
         else:
@@ -193,6 +197,17 @@ class Console(cmd2.Cmd):
         self.columns = []
         for column in result:
             self.columns.append(column[0])
+
+    def get_saved_queries(self):
+        """
+        Get saved queries from saved_queries.txt file
+        """
+        saved_queries = ConfigParser.ConfigParser()
+        saved_queries.read(self.saved_queries_file)
+        self.saved_queries = []
+
+        for sq in saved_queries.items('queries'):
+            self.saved_queries.append(sq[0])
 
 
     def do_SELECT(self, stm):
@@ -328,7 +343,6 @@ class Console(cmd2.Cmd):
 
     do_use = do_USE
 
-
     def complete_USE(self, text, line, begidx, endidx):
         """
         """
@@ -412,6 +426,7 @@ class Console(cmd2.Cmd):
         """
 
         query = s
+
         try:
             self.cursor.execute(query)
             header = self.cursor.description
@@ -457,6 +472,65 @@ class Console(cmd2.Cmd):
 
     def help_quit (self):
         print "Quits the console"
+
+
+    def do_save_query(self, stm):
+        """
+        Saves the last excecuted query:
+        save_query [name]
+        """
+        guardar = self.history[len(self.history)-2]
+        saved_queries = ConfigParser.ConfigParser()
+        saved_queries.read(self.saved_queries_file)
+        saved_queries.set('queries', stm, guardar)
+
+        with open(self.saved_queries_file, 'wb') as f:
+            saved_queries.write(f)
+
+        self.get_saved_queries()
+        print "\n"
+
+
+    def do_recover_query(self, stm):
+        """
+        Recover a saved query
+        recover_query [name]
+        """
+        saved_queries = ConfigParser.ConfigParser()
+        saved_queries.read(self.saved_queries_file)
+        print saved_queries.get('queries', stm)+"\n"
+
+
+    def do_remove_query(self, stm):
+        """
+        Remove save query
+        remove_query [name]
+        """
+        saved_queries = ConfigParser.ConfigParser()
+        saved_queries.read(self.saved_queries_file)
+        saved_queries.remove_option('queries',stm)
+
+        with open(self.saved_queries_file, 'wb') as f:
+            saved_queries.write(f)
+            print "Removed query: "+stm+"\n"
+
+        self.get_saved_queries()
+
+    def complete_saved_queries(self, text, line, begidx, endidx):
+        """
+        """
+        if not text:
+            completions = self.saved_queries[:]
+        else:
+            completions = [ d
+                            for d in self.saved_queries
+                            if d.startswith(text)
+                            ]
+        return completions
+
+    complete_remove_query = complete_saved_queries
+    complete_recover_query = complete_saved_queries
+
 
     def format_output(self, headers_tuple, result):
         """
