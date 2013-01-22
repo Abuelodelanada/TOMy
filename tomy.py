@@ -10,6 +10,8 @@ import ConfigParser
 import getpass
 import logging
 
+logging.basicConfig(level=logging.FATAL)
+
 
 class Console(cmd2.Cmd):
 
