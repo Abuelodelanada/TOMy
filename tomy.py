@@ -42,25 +42,24 @@ class Console(cmd2.Cmd):
         self.color_config.read('.config')
 
         _color = self.color_config.get('colors', "borders",
-                                       vars = self.color_config_dict)
+                                       vars=self.color_config_dict)
         _borders_bold = self.color_config.get('colors', "borders_bold",
-                                              vars = self.color_config_dict)
+                                              vars=self.color_config_dict)
         _result = self.color_config.get('colors', "result",
-                                        vars = self.color_config_dict)
+                                        vars=self.color_config_dict)
         _result_bold = self.color_config.get('colors', "result_bold",
-                                             vars = self.color_config_dict)
+                                             vars=self.color_config_dict)
         self.color_config_dict['borders'] = _color
         self.color_config_dict['borders_bold'] = _borders_bold
         self.color_config_dict['result'] = _result
         self.color_config_dict['result_bold'] = _result_bold
 
-
     def arguments(self):
         """
         Parse arguments
         """
-        parser = argparse.ArgumentParser(description=
-                                         'Connect to a MySQL server')
+        parser = argparse.ArgumentParser(description='Connect to a MySQL\
+                                         server')
         parser.add_argument("-u", "--user", dest='user',
                             help="The MySQL user name to use when connecting\
                             to the server.")
@@ -202,7 +201,7 @@ class Console(cmd2.Cmd):
                                                               "show_db")
 
             prompt_config_dict['prompt_char'] = prompt_config.get('prompt',
-                                                                  "prompt_char")
+                                                                "prompt_char")
         except:
             # TODO: use exceptions in a decent way
             logging.error('Wrong section definition')
