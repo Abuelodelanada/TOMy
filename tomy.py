@@ -33,20 +33,20 @@ class Console(cmd2.Cmd):
     def __init__(self):
         """Constructor"""
 
-
         cmd2.Cmd.__init__(self)
         self.arguments()
 
         # Custom settings if you don't have set up in .config file
-        self.color_config_dict = {'borders': 'red', 'borders_bold': True,
-                                  'result': None, 'result_bold': False}
+        self.color_config_dict = {'borders': 'red', 'borders_bold': 'True',
+                                  'result': None, 'result_bold': 'False'}
         self.colors = ('red', 'cyan', 'green', 'magenta', 'blue')
         self.color_config = ConfigParser.ConfigParser()
         self.color_config.read('.config')
 
         _color = self.color_config.get('colors', "borders",
                                        vars=self.color_config_dict)
-        _borders_bold = self.color_config.get('colors', "borders_bold", True)
+        _borders_bold = self.color_config.get('colors', "borders_bold",
+                                              vars=self.color_config_dict)
         _result = self.color_config.get('colors', "result",
                                         vars=self.color_config_dict)
         _result_bold = self.color_config.get('colors', "result_bold",
@@ -288,7 +288,6 @@ class Console(cmd2.Cmd):
 
         for sq in saved_queries.items('queries'):
             self.saved_queries.append(sq[0])
-
 
     def do_DESC(self, stm):
         """
