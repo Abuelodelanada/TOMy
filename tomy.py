@@ -59,6 +59,7 @@ class Console(cmd2.Cmd):
         # Se instalan los comandos (tipo plugins)
         commands.Select().install(self)
         commands.Insert().install(self)
+        commands.Show().install(self)
 
     def arguments(self):
         """
@@ -354,42 +355,6 @@ class Console(cmd2.Cmd):
         return completions
 
     complete_drop = complete_DROP
-
-    def do_SHOW(self, parameter):
-        """
-        MySQL SHOW command:
-
-        SHOW {BINARY | MASTER} LOGS
-        SHOW BINLOG EVENTS [IN 'log_name'] [FROM pos] [LIMIT [offset,]\
-                row_count]
-        SHOW CHARACTER SET [LIKE 'pattern']
-        SHOW COLLATION [LIKE 'pattern']
-        SHOW [FULL] COLUMNS FROM tbl_name [FROM db_name] [LIKE 'pattern']
-        SHOW CREATE DATABASE db_name
-        SHOW CREATE TABLE tbl_name
-        SHOW DATABASES [LIKE 'pattern']
-        SHOW ENGINE engine_name {LOGS | STATUS }
-        SHOW [STORAGE] ENGINES
-        SHOW ERRORS [LIMIT [offset,] row_count]
-        SHOW GRANTS FOR user
-        SHOW INDEX FROM tbl_name [FROM db_name]
-        SHOW INNODB STATUS
-        SHOW [BDB] LOGS
-        SHOW MASTER STATUS
-        SHOW OPEN TABLES
-        SHOW PRIVILEGES
-        SHOW [FULL] PROCESSLIST
-        SHOW SLAVE HOSTS
-        SHOW SLAVE STATUS
-        SHOW [GLOBAL | SESSION] STATUS [LIKE 'pattern']
-        SHOW TABLE STATUS [FROM db_name] [LIKE 'pattern']
-        SHOW TABLES [FROM db_name] [LIKE 'pattern']
-        SHOW [GLOBAL | SESSION] VARIABLES [LIKE 'pattern']
-        SHOW WARNINGS [LIMIT [offset,] row_count]
-        """
-        self.default('SHOW %s ' % parameter)
-
-    do_show = do_SHOW
 
     def default(self, s):
         """

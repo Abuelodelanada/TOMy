@@ -3,13 +3,13 @@ class Command:
     def install(self, console):
         self.console = console
         command = self.__class__.__name__
-
         methods = ['do', 'help', 'complete']
 
         for m in methods:
-            handler = getattr(self, m) # referencia al metodo
-            setattr(console, "%s_%s" %(m, command.lower()), handler)  # minusculas
-            setattr(console, "%s_%s" %(m, command.upper()), handler)  # mayusculas (porque no funciona case_insensitive de cmd2)
+            # referencia al metodo
+            handler = getattr(self, m)
+            setattr(console, "%s_%s" %(m, command.lower()), handler)
+            setattr(console, "%s_%s" %(m, command.upper()), handler)
 
     def do(self, stm):
         pass
@@ -22,3 +22,4 @@ class Command:
 
 from select import Select
 from insert import Insert
+from show import Show
