@@ -41,22 +41,19 @@ class Console(cmd2.Cmd):
         self.color_config = ConfigParser.ConfigParser()
         self.color_config.read('.config')
 
-        try:
-            _color = self.color_config.get('colors', "borders",
-                                           vars = self.color_config_dict)
-            _borders_bold = self.color_config.get('colors', "borders_bold",
-                                                  vars = self.color_config_dict)
-            _result = self.color_config.get('colors', "result",
-                                            vars = self.color_config_dict)
-            _result_bold = self.color_config.get('colors', "result_bold",
-                                                 vars = self.color_config_dict)
-            self.color_config_dict['borders'] = _color
-            self.color_config_dict['borders_bold'] = _borders_bold
-            self.color_config_dict['result'] = _result
-            self.color_config_dict['result_bold'] = _result_bold
-        except Exception as exc:
-            logging.debug(exc)
-            pass
+        _color = self.color_config.get('colors', "borders",
+                                       vars = self.color_config_dict)
+        _borders_bold = self.color_config.get('colors', "borders_bold",
+                                              vars = self.color_config_dict)
+        _result = self.color_config.get('colors', "result",
+                                        vars = self.color_config_dict)
+        _result_bold = self.color_config.get('colors', "result_bold",
+                                             vars = self.color_config_dict)
+        self.color_config_dict['borders'] = _color
+        self.color_config_dict['borders_bold'] = _borders_bold
+        self.color_config_dict['result'] = _result
+        self.color_config_dict['result_bold'] = _result_bold
+
 
     def arguments(self):
         """
