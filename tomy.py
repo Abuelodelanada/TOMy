@@ -35,17 +35,21 @@ class Console(cmd2.Cmd):
         self.arguments()
 
         # Custom settings if you don't have set up in .config file
-        self.color_config_dict = {'borders': 'red', 'border_bold': True,
+        self.color_config_dict = {'borders': 'red', 'borders_bold': True,
                                   'result': None, 'result_bold': False}
         self.colors = ('red', 'cyan', 'green', 'magenta', 'blue')
         self.color_config = ConfigParser.ConfigParser()
         self.color_config.read('.config')
 
         try:
-            _color = self.color_config.get('colors', "borders")
-            _borders_bold = self.color_config.get('colors', "borders_bold")
-            _result = self.color_config.get('colors', "result")
-            _result_bold = self.color_config.get('colors', "result_bold")
+            _color = self.color_config.get('colors', "borders",
+                                           vars = self.color_config_dict)
+            _borders_bold = self.color_config.get('colors', "borders_bold",
+                                                  vars = self.color_config_dict)
+            _result = self.color_config.get('colors', "result",
+                                            vars = self.color_config_dict)
+            _result_bold = self.color_config.get('colors', "result_bold",
+                                                 vars = self.color_config_dict)
             self.color_config_dict['borders'] = _color
             self.color_config_dict['borders_bold'] = _borders_bold
             self.color_config_dict['result'] = _result
