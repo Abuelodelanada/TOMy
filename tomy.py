@@ -201,8 +201,7 @@ class Console(cmd2.Cmd):
                                                               "show_db")
 
             prompt_config_dict['prompt_char'] = prompt_config.get('prompt',
-                                                                  "prompt\
-                                                                  _char")
+                                                                  "prompt_char")
         except:
             # TODO: use exceptions in a decent way
             logging.error('Wrong section definition')
