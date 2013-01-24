@@ -62,6 +62,7 @@ class Console(cmd2.Cmd):
         commands.Show().install(self)
         commands.Drop().install(self)
         commands.Use().install(self)
+        commands.Desc().install(self)
 
     def arguments(self):
         """
@@ -291,22 +292,6 @@ class Console(cmd2.Cmd):
 
         for sq in saved_queries.items('queries'):
             self.saved_queries.append(sq[0])
-
-    def do_DESC(self, stm):
-        """
-        """
-        self.default('DESC %s' % stm)
-
-    do_desc = do_DESC
-
-    def complete_DESC(self, text, line, begidx, endidx):
-        if not text:
-            completions = self.tables[:]
-        else:
-            completions = [t for t in self.tables if t.startswith(text)]
-        return completions
-
-    complete_desc = complete_DESC
 
     def default(self, s):
         """

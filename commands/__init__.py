@@ -25,3 +25,4 @@ from insert import Insert
 from show import Show
 from drop import Drop
 from use import Use
+from desc import Desc
