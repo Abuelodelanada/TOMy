@@ -61,6 +61,7 @@ class Console(cmd2.Cmd):
         commands.Insert().install(self)
         commands.Show().install(self)
         commands.Drop().install(self)
+        commands.Use().install(self)
 
     def arguments(self):
         """
@@ -306,33 +307,6 @@ class Console(cmd2.Cmd):
         return completions
 
     complete_desc = complete_DESC
-
-    def do_USE(self, db):
-        """
-        Change the database:
-
-        USE db_name;
-        """
-        self.default('USE %s' % db)
-        self.connection_data['database'] = db
-        self.prompt = self.get_prompt(self.connection_data['user'],
-                                      self.connection_data['host'],
-                                      self.connection_data['database'])
-        self.get_tables(db)
-        self.get_columns(db)
-
-    do_use = do_USE
-
-    def complete_USE(self, text, line, begidx, endidx):
-        """
-        """
-        if not text:
-            completions = self.databases[:]
-        else:
-            completions = [d for d in self.databases if d.startswith(text)]
-        return completions
-
-    complete_use = complete_USE
 
     def default(self, s):
         """
