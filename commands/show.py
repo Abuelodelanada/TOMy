@@ -2,15 +2,13 @@ import commands
 
 
 class Show(commands.Command):
-
-
     def do(self, stm):
         self.console.default('SHOW %s' % stm)
 
     def help(self):
         help = """
         SHOW {BINARY | MASTER} LOGS
-        SHOW BINLOG EVENTS [IN 'log_name'] [FROM pos] [LIMIT [offset,]row_count]
+        SHOW BINLOG EVENTS
         SHOW CHARACTER SET [LIKE 'pattern']
         SHOW COLLATION [LIKE 'pattern']
         SHOW [FULL] COLUMNS FROM tbl_name [FROM db_name] [LIKE 'pattern']

@@ -60,6 +60,7 @@ class Console(cmd2.Cmd):
         commands.Select().install(self)
         commands.Insert().install(self)
         commands.Show().install(self)
+        commands.Drop().install(self)
 
     def arguments(self):
         """
@@ -332,29 +333,6 @@ class Console(cmd2.Cmd):
         return completions
 
     complete_use = complete_USE
-
-    def do_DROP(self, db):
-        """
-        DROP
-        """
-        self.default('DROP %s' % db)
-        self.prompt = self.get_prompt(self.connection_data['user'],
-                                      self.connection_data['host'],
-                                      self.connection_data['database'])
-        self.get_databases()
-
-    do_drop = do_DROP
-
-    def complete_DROP(self, text, line, begidx, endidx):
-        """
-        """
-        if not text:
-            completions = self.databases[:]
-        else:
-            completions = [d for d in self.databases if d.startswith(text)]
-        return completions
-
-    complete_drop = complete_DROP
 
     def default(self, s):
         """
