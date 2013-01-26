@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Tomy by Abuelodelanada</title>
+    <title>TOMy by Abuelodelanada</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
@@ -15,8 +15,8 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1>Tomy</h1>
-        <p>My own MySQL client, which I hope to have more features than the original ;-)</p>
+        <h1>TOMy</h1>
+        <p>Un cliente de MySQL que, esperamos, algún día tenga mejores funcionalidad que el oficial.</p>
 
         <p class="view"><a href="https://github.com/Abuelodelanada/TOMy">View the Project on GitHub <small>Abuelodelanada/TOMy</small></a></p>
 
@@ -28,32 +28,44 @@
         </ul>
       </header>
       <section>
-        <h3>Welcome to GitHub Pages.</h3>
+        <h1>¿Por qué TOMy?</h1>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<p>No pasa un día que no tenga que conectarme a una base de datos MySQL y ejecutar alguna query. Para esto, como muchos, uso el cliente de consola oficial de MySQL. Y como muchos, me pregunto: ¿No habrá algún cliente de consola que esté más "copado" que el oficial?</p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
+<p>Bueno, la cosa es que busqué, y no encontré mucho, así que como tenía algo de tiempo libre me puse a escribir un cliente que, espero algún día, tenga más y mejores funcionalidades que el cliente oficial.</p>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<h1>Ok. ¿Pero por qué el nombre TOMy?</h1>
 
-<h3>Designer Templates</h3>
+<p>Por dos motivos, el primero y más importante es porque ese era el nombre de mi <strong>queridísimo</strong> perro de la infancia/adolescencia, el cual le tenía más miedo a los gatos que yo a la guerra nuclear :P
+Y el segundo motivo es que, casualmente TOMy podrían ser las siglas de: <strong>Terminal Of Mysql</strong></p>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+<p><img src="https://raw.github.com/Abuelodelanada/TOMy/master/img/tomy1.png" alt="El sabio Tomy tomando sol en el porche."></p>
 
-<h3>Rather Drive Stick?</h3>
+<p>El sabio Tomy tomando sol en el porche.</p>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<h1>Estado</h1>
 
-<h3>Authors and Contributors</h3>
+<p>Como hace relativamente poco tiempo que empezamos a escribir TOMy, aún no tiene todo lo que nos gustaría que tenga. Por el momento, las funcionalidades que pudimos implementarle son:</p>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<ul>
+<li>Guardamos conexiones en el archivo <strong>.connections</strong> para no tener que tipear siempre los mismos strings de conexión</li>
+<li>Soporte para múltiples conexiones sin salir del TOMy.</li>
+<li>Coloreado de los resultados de las queries configurable desde el archivo <strong>.config</strong>.</li>
+<li>Prompt configurable también desde el archivo <strong>.config</strong>.</li>
+<li>Autocompletado de sentencias con nombres de bases de datos, tablas y campos.</li>
+<li>Posibilidad de guardar, recuperar y eliminar las queries ejecutadas en el archivo: <strong>saved_queries.txt</strong>
+</li>
+<li>Posibilidad de ejecutar comandos de consola dentro de TOMy (Funcionalidad de cmd2)</li>
+<li>Posibilidad de ejecutar python dentro de TOMy (Funcionalidad de cmd2)</li>
+<li>Posibilidad de guardar el resultado de una query en un archivo (Funcionalidad de cmd2) de la siguiente manera: <em><strong>SELECT first_name FROM contacts; &gt; contactos.txt</strong></em>
+</li>
+</ul><p>Adicionalmente, nos gustaría implementar:</p>
 
-<h3>Support or Contact</h3>
-
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+<ul>
+<li>Coloreado de la sintaxis SQL.</li>
+<li>Visualización "linda" de la query cuando la recuperamos del historial de queries ejecutadas.</li>
+<li>[Ingrese aquí su funcionalidad deseada]</li>
+</ul>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/Abuelodelanada">Abuelodelanada</a></p>
