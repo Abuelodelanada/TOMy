@@ -411,7 +411,6 @@ class Console(cmd2.Cmd):
             column_names.append(h[0])
 
         headers = column_names
-        # nrows=len(rows) # XXX: Never used
         fieldlen = []
 
         ncols = len(headers)
@@ -471,6 +470,7 @@ class Console(cmd2.Cmd):
 
         out.append(bar)
         print "\r\n".join(out)
+
 
     def is_number(self, s):
         try:
