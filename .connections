@@ -1,11 +1,20 @@
-[connection1]
+[mysql1]
 host: localhost
 user: root
 database: gca_31
 port: 3306
+engine: mysql
 
-[connection2]
+[mysql2]
 host: localhost
 user: root
 database: gca_30
 port: 3306
+engine: mysql
+
+[pg]
+host: localhost
+user: postgres
+database: tryton_academia
+port: 5432
+engine: postgres

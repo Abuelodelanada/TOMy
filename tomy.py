@@ -5,12 +5,16 @@ import cmd2
 import sys
 import argparse
 import MySQLdb
+import psycopg2
 import _mysql_exceptions
 import ConfigParser
 import getpass
 import logging
 import commands
 import copy
+
+from EngineMySQL import *
+from EnginePostgres import *
 
 logging.basicConfig(level=logging.FATAL)
 
@@ -24,7 +28,8 @@ class Console(cmd2.Cmd):
     args = ''
     default_args = ''
     connection_data = {'host': '', 'user': '',
-                       'database': '', 'port': 3306, 'conn': ''}
+                       'database': '', 'port': 3306, 'conn': '',
+                       'engine': ''}
     connections = {}
     stored_conn = ''
     databases = []
@@ -96,6 +101,9 @@ class Console(cmd2.Cmd):
                             help="The TCP/IP port number to use for \
                             the connection.")
 
+        parser.add_argument("-e", "--engine", dest='engine',
+                            help="SQL Engine: MySQL, PostgreSQL")
+
         parser.add_argument("-cnt", "--connection", dest='connection',
                             help="Select a conection saved in\
                             .connections file")
@@ -142,7 +150,7 @@ class Console(cmd2.Cmd):
                 else:
                     self.cursor = self.connections['default']
 
-                self.server_info()
+                self.mysql_server_info()
                 self.connection_data['host'] = db_host
                 self.connection_data['user'] = args.user
                 self.connection_data['database'] = db
@@ -164,15 +172,24 @@ class Console(cmd2.Cmd):
 
         elif(args.connection is not None):
             self.get_stored_connections()
+
             self.connection_data['user'] =\
             self.stored_conn.get(args.connection, "user")
+
             self.connection_data['host'] =\
             self.stored_conn.get(args.connection, "host")
+
             self.connection_data['database'] =\
             self.stored_conn.get(args.connection, "database")
+
             self.connection_data['conn'] = args.connection
+
             self.connection_data['port'] =\
             self.stored_conn.get(args.connection, "port")
+
+            self.connection_data['engine'] =\
+            self.stored_conn.get(args.connection, "engine")
+
             try:
                 self.connection_data['port'] =\
                 self.stored_conn.get(args.connection, 'port')
@@ -182,24 +199,13 @@ class Console(cmd2.Cmd):
             try:
                 if(args.connection not in self.connections):
                     db_pass = getpass.getpass()
-                    self.connection = MySQLdb.connect(
-                        host=self.connection_data['host'],
-                        user=self.connection_data['user'],
-                        passwd=db_pass,
-                        db=self.connection_data['database'],
-                        port=int(self.connection_data['port']))
-
-                    self.cursor = self.connection.cursor()
-                    self.connections[args.connection] = self.cursor
+                    self.engine_connect(self.connection_data, db_pass)
                 else:
                     self.cursor = self.connections[args.connection]
-                self.server_info()
+
                 self.prompt = self.get_prompt(self.connection_data['user'],
                                               self.connection_data['host'],
                                               self.connection_data['database'])
-                self.get_databases()
-                self.get_tables(str(self.connection_data['database']))
-                self.get_columns(str(self.connection_data['database']))
                 self.get_saved_queries()
             except:
                 sys.exit(u"Access denied for user '%s'@'%s'"
@@ -207,6 +213,39 @@ class Console(cmd2.Cmd):
                             self.connection_data['host']))
         else:
             sys.exit(u"Please, use -h option to know about how to use TOMy")
+
+    def engine_connect(self, conn_data, db_passwd):
+        """
+        """
+        db_engine = conn_data['engine']
+        db_user = conn_data['user']
+        db_host = conn_data['host']
+        db_db = conn_data['database']
+        db_port = int(conn_data['port'])
+
+        if(db_engine == 'postgres'):
+            self.connection = psycopg2.connect(user=db_user,
+                                               password=db_passwd,
+                                               database=db_db,
+                                               port=db_port,
+                                               host=db_host)
+            self.cursor = self.connection.cursor()
+            self.connections[conn_data['conn']] = self.cursor
+            self.postgres_server_info()
+
+        elif(db_engine == 'mysql'):
+            self.connection = MySQLdb.connect(host=db_host,
+                                              user=db_user,
+                                              passwd=db_passwd,
+                                              db=db_db,
+                                              port=db_port)
+            self.cursor = self.connection.cursor()
+            self.connections[conn_data['conn']] = self.cursor
+            self.mysql_server_info()
+            a = EngineMySQL()
+            self.databases = EngineMySQL.get_databases(a, self.cursor)
+            self.tables = EngineMySQL.get_tables(a, self.cursor, db_db)
+            self.columns = EngineMySQL.get_columns(a, self.cursor, db_db)
 
     def get_prompt(self, user, host, database='None'):
         """
@@ -258,13 +297,15 @@ class Console(cmd2.Cmd):
 
         return prompt
 
-    def server_info(self):
+    def mysql_server_info(self):
         """
         Shows the server info
         """
-        server_info = self.connection.get_server_info()
-        server_status = self.connection.stat()
-        server_connection_id = self.connection.thread_id()
+        a = EngineMySQL()
+        b = EngineMySQL.server_info(a, self.connection)
+        server_info = b[0]
+        server_status = b[1]
+        server_connection_id = b[2]
         print '.:: Server version: %s'\
             % (self.colorize(server_info, 'green'))
         print '.:: Server status: %s'\
@@ -272,47 +313,24 @@ class Console(cmd2.Cmd):
         print '.:: Server connection id: %s \n'\
             % (self.colorize(str(server_connection_id), 'green'))
 
+    def postgres_server_info(self):
+        """
+        Shows the server info
+        """
+        a = EnginePostgres()
+        b = EnginePostgres.server_info(a, self.connection)
+        server_version = b[0]
+        server_pid = b[1]
+        print '.:: Server version: %s'\
+            % (self.colorize(server_version, 'green'))
+        print '.:: Server connection id: %s \n'\
+            % (self.colorize(str(server_pid), 'green'))
+
     def get_welcome(self):
         """
         """
         welcome = '.:: Welcome to TOMy %s!' % (self.version)
         print welcome
-
-    def get_databases(self):
-        """
-        Get the names of the databases in the server.
-        """
-        query = 'SELECT SCHEMA_NAME FROM information_schema.SCHEMATA'
-        self.cursor.execute(query)
-        result = self.cursor.fetchall()
-        for db in result:
-            self.databases.append(db[0])
-
-    def get_tables(self, db):
-        """
-        Get the tables names
-        """
-        query = '''SELECT information_schema.TABLES.TABLE_NAME
-                   FROM information_schema.TABLES
-                   WHERE information_schema.TABLES.TABLE_SCHEMA = "%s"''' % db
-        self.cursor.execute(query)
-        result = self.cursor.fetchall()
-        self.tables = []
-        for table in result:
-            self.tables.append(table[0])
-
-    def get_columns(self, db):
-        """
-        Get the fields names
-        """
-        query = '''SELECT information_schema.COLUMNS.COLUMN_NAME
-                   FROM information_schema.COLUMNS
-                   WHERE information_schema.COLUMNS.TABLE_SCHEMA = "%s"''' % db
-        self.cursor.execute(query)
-        result = self.cursor.fetchall()
-        self.columns = []
-        for column in result:
-            self.columns.append(column[0])
 
     def get_saved_queries(self):
         """
