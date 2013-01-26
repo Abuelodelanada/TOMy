@@ -10,6 +10,7 @@ import ConfigParser
 import getpass
 import logging
 import commands
+import copy
 
 logging.basicConfig(level=logging.FATAL)
 
@@ -21,7 +22,9 @@ class Console(cmd2.Cmd):
     cursor = ''
     connection = ''
     args = ''
-    connection_data = {'host': '', 'user': '', 'database': '', 'port': 3306}
+    default_args = ''
+    connection_data = {'host': '', 'user': '',
+                       'database': '', 'port': 3306, 'conn': ''}
     connections = {}
     databases = []
     tables = []
@@ -96,6 +99,9 @@ class Console(cmd2.Cmd):
                             .connections file")
 
         self.args = parser.parse_args()
+        if(self.args.connection is None):
+            self.default_args = copy.copy(self.args)
+
         self.connect(self.args)
 
     def connect(self, args):
@@ -123,17 +129,23 @@ class Console(cmd2.Cmd):
                 db_port = args.port
 
             try:
-                self.connection = MySQLdb.connect(host=db_host,
-                                                  user=args.user,
-                                                  passwd=db_pass,
-                                                  db=db,
-                                                  port=db_port)
-                self.cursor = self.connection.cursor()
+                if('default' not in self.connections):
+                    self.connection = MySQLdb.connect(host=db_host,
+                                                      user=args.user,
+                                                      passwd=db_pass,
+                                                      db=db,
+                                                      port=db_port)
+                    self.cursor = self.connection.cursor()
+                else:
+                    self.cursor = self.connections['default']
+
                 self.server_info()
                 self.connection_data['host'] = db_host
                 self.connection_data['user'] = args.user
                 self.connection_data['database'] = db
                 self.connection_data['port'] = db_port
+                self.connection_data['conn'] = 'default'
+                self.connections['default'] = self.cursor
                 self.prompt = self.get_prompt(self.connection_data['user'],
                                               self.connection_data['host'],
                                               self.connection_data['database'])
@@ -154,6 +166,7 @@ class Console(cmd2.Cmd):
             self.connection_data['host'] = config.get(args.connection, "host")
             self.connection_data['database'] = config.get(args.connection,
                                                           "database")
+            self.connection_data['conn'] = args.connection
             self.connection_data['port'] = config.get(args.connection, "port")
             try:
                 self.connection_data['port'] = config.get(args.connection,
@@ -218,21 +231,21 @@ class Console(cmd2.Cmd):
             # TODO: use exceptions in a decent way
             logging.error('Wrong section definition')
 
+        prompt = 'conn: %s\n' % self.connection_data['conn']
         if(prompt_config_dict['show_user'] == 'True'):
             if(prompt_config_dict['show_host'] == 'True'):
-                prompt = '%s@%s' % (self.connection_data['user'],
-                                    self.connection_data['host'])
+                prompt = '%s<%s@%s>' % (prompt, self.connection_data['user'],
+                                      self.connection_data['host'])
             else:
-                prompt = self.connection_data['user']
+                prompt = '%s<%s>' % (prompt, self.connection_data['user'])
         else:
             if(prompt_config_dict['show_host'] == 'True'):
-                prompt = self.connection_data['host']
+                prompt = '%s<%s>' % (prompt, self.connection_data['host'])
             else:
-                prompt = ''
+                pass
 
         if(prompt_config_dict['show_db'] == 'True'):
-            prompt = '%s\nDB: [%s]' % (prompt,
-                                       self.connection_data['database'])
+            prompt = '%s [%s] ' % (prompt, self.connection_data['database'])
 
         prompt = prompt + prompt_config_dict['prompt_char'] + ' '
 
@@ -349,8 +362,11 @@ class Console(cmd2.Cmd):
         Connect to another MySQL server.
         The connection data must be stored in .connections file
         """
-        self.args.connection = conn_name
-        self.connect(self.args)
+        if(conn_name == 'default'):
+            self.connect(self.default_args)
+        else:
+            self.args.connection = conn_name
+            self.connect(self.args)
 
     def do_quit(self, s):
         print "Good Bye!!!"
@@ -486,7 +502,6 @@ class Console(cmd2.Cmd):
 
         out.append(bar)
         print "\r\n".join(out)
-
 
     def is_number(self, s):
         try:
