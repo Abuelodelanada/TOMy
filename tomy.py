@@ -346,6 +346,8 @@ class Console(cmd2.Cmd):
 
     def do_connect(self, conn_name):
         """
+        Connect to another MySQL server.
+        The connection data must be stored in .connections file
         """
         self.args.connection = conn_name
         self.connect(self.args)
