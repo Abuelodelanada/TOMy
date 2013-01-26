@@ -164,17 +164,17 @@ class Console(cmd2.Cmd):
 
         elif(args.connection is not None):
             self.get_stored_connections()
-            self.connection_data['user'] =
+            self.connection_data['user'] =\
             self.stored_conn.get(args.connection, "user")
-            self.connection_data['host'] =
+            self.connection_data['host'] =\
             self.stored_conn.get(args.connection, "host")
-            self.connection_data['database'] =
+            self.connection_data['database'] =\
             self.stored_conn.get(args.connection, "database")
             self.connection_data['conn'] = args.connection
-            self.connection_data['port'] =
+            self.connection_data['port'] =\
             self.stored_conn.get(args.connection, "port")
             try:
-                self.connection_data['port'] =
+                self.connection_data['port'] =\
                 self.stored_conn.get(args.connection, 'port')
             except:
                 pass
@@ -219,6 +219,9 @@ class Console(cmd2.Cmd):
         self.connection_data['host'] = host
         self.connection_data['user'] = user
         self.connection_data['database'] = database
+        if(user == 'root'):
+            user = self.colorize(user, 'red')
+            user = self.colorize(user, 'bold')
 
         try:
             prompt_config = ConfigParser.ConfigParser()
@@ -239,18 +242,17 @@ class Console(cmd2.Cmd):
         prompt = 'conn: %s\n' % self.connection_data['conn']
         if(prompt_config_dict['show_user'] == 'True'):
             if(prompt_config_dict['show_host'] == 'True'):
-                prompt = '%s<%s@%s>' % (prompt, self.connection_data['user'],
-                                      self.connection_data['host'])
+                prompt = '%s<%s@%s>' % (prompt, user, host)
             else:
-                prompt = '%s<%s>' % (prompt, self.connection_data['user'])
+                prompt = '%s<%s>' % (prompt, user)
         else:
             if(prompt_config_dict['show_host'] == 'True'):
-                prompt = '%s<%s>' % (prompt, self.connection_data['host'])
+                prompt = '%s<%s>' % (prompt, host)
             else:
                 pass
 
         if(prompt_config_dict['show_db'] == 'True'):
-            prompt = '%s [%s] ' % (prompt, self.connection_data['database'])
+            prompt = '%s [%s] ' % (prompt, database)
 
         prompt = prompt + prompt_config_dict['prompt_char'] + ' '
 
@@ -377,7 +379,7 @@ class Console(cmd2.Cmd):
         Connect to another MySQL server.
         The connection data must be stored in .connections file
         """
-        if(conn_name == 'default'):
+        if(conn_name == 'default' and self.default_args is not None):
             self.connect(self.default_args)
         else:
             self.args.connection = conn_name

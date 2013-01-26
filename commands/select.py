@@ -6,7 +6,6 @@ import commands
 
 class Select(commands.Command):
 
-
     def do(self, stm):
         self.console.default('SELECT %s' % stm)
 
