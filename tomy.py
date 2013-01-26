@@ -16,10 +16,13 @@ logging.basicConfig(level=logging.FATAL)
 
 class Console(cmd2.Cmd):
 
+    version = '0.1'
     prompt = ''
     cursor = ''
     connection = ''
+    args = ''
     connection_data = {'host': '', 'user': '', 'database': '', 'port': 3306}
+    connections = {}
     databases = []
     tables = []
     columns = []
@@ -75,12 +78,7 @@ class Console(cmd2.Cmd):
                             to the server.")
         parser.add_argument("-p", "--password", dest='password',
                             help="The password to use when connecting \
-                            to the server. If you use the short option \
-                            form (-p), you cannot have a space between \
-                            the option and the password. If you omit the \
-                            password value following the --password or -p \
-                            option on the command line, mysql prompts for \
-                            one.")
+                            to the server.")
 
         parser.add_argument("-hs", "--host", dest='host',
                             help="Connect to the MySQL server on the \
@@ -97,12 +95,12 @@ class Console(cmd2.Cmd):
                             help="Select a conection saved in\
                             .connections file")
 
-        args = parser.parse_args()
-        self.connect(args)
+        self.args = parser.parse_args()
+        self.connect(self.args)
 
     def connect(self, args):
         """
-        This method is for connect to de database
+        This method is for connect to the database
         """
 
         if(args.user is not None and args.connection is None):
@@ -150,7 +148,6 @@ class Console(cmd2.Cmd):
                           self.connection_data['host']))
 
         elif(args.connection is not None):
-            db_pass = getpass.getpass()
             config = ConfigParser.ConfigParser()
             config.read(".connections")
             self.connection_data['user'] = config.get(args.connection, "user")
@@ -165,14 +162,19 @@ class Console(cmd2.Cmd):
                 pass
 
             try:
-                self.connection = MySQLdb.connect(
-                    host=self.connection_data['host'],
-                    user=self.connection_data['user'],
-                    passwd=db_pass,
-                    db=self.connection_data['database'],
-                    port=int(self.connection_data['port']))
+                if(args.connection not in self.connections):
+                    db_pass = getpass.getpass()
+                    self.connection = MySQLdb.connect(
+                        host=self.connection_data['host'],
+                        user=self.connection_data['user'],
+                        passwd=db_pass,
+                        db=self.connection_data['database'],
+                        port=int(self.connection_data['port']))
 
-                self.cursor = self.connection.cursor()
+                    self.cursor = self.connection.cursor()
+                    self.connections[args.connection] = self.cursor
+                else:
+                    self.cursor = self.connections[args.connection]
                 self.server_info()
                 self.prompt = self.get_prompt(self.connection_data['user'],
                                               self.connection_data['host'],
@@ -240,7 +242,7 @@ class Console(cmd2.Cmd):
         """
         Shows the server info
         """
-        welcome = '.:: Welcome to TOMy!'
+        welcome = '.:: Welcome to TOMy %s!' % (self.version)
         server_info = self.connection.get_server_info()
         server_status = self.connection.stat()
         server_connection_id = self.connection.thread_id()
@@ -341,6 +343,12 @@ class Console(cmd2.Cmd):
                                 '\n', 'red')
 
     do_ = default
+
+    def do_connect(self, conn_name):
+        """
+        """
+        self.args.connection = conn_name
+        self.connect(self.args)
 
     def do_quit(self, s):
         print "Good Bye!!!"

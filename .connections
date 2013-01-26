@@ -5,7 +5,7 @@ database: gca_31
 port: 3306
 
 [connection2]
-host: mysqlcentos
+host: localhost
 user: root
-database: gca_jose
+database: gca_30
 port: 3306
