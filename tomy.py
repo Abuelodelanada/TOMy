@@ -26,6 +26,7 @@ class Console(cmd2.Cmd):
     connection_data = {'host': '', 'user': '',
                        'database': '', 'port': 3306, 'conn': ''}
     connections = {}
+    stored_conn = ''
     databases = []
     tables = []
     columns = []
@@ -61,6 +62,7 @@ class Console(cmd2.Cmd):
         self.color_config_dict['borders_bold'] = _borders_bold
         self.color_config_dict['result'] = _result
         self.color_config_dict['result_bold'] = _result_bold
+        self.get_stored_connections()
 
         # Se instalan los comandos (tipo plugins)
         commands.Select().install(self)
@@ -102,6 +104,7 @@ class Console(cmd2.Cmd):
         if(self.args.connection is None):
             self.default_args = copy.copy(self.args)
 
+        self.get_welcome()
         self.connect(self.args)
 
     def connect(self, args):
@@ -160,17 +163,19 @@ class Console(cmd2.Cmd):
                           self.connection_data['host']))
 
         elif(args.connection is not None):
-            config = ConfigParser.ConfigParser()
-            config.read(".connections")
-            self.connection_data['user'] = config.get(args.connection, "user")
-            self.connection_data['host'] = config.get(args.connection, "host")
-            self.connection_data['database'] = config.get(args.connection,
-                                                          "database")
+            self.get_stored_connections()
+            self.connection_data['user'] =
+            self.stored_conn.get(args.connection, "user")
+            self.connection_data['host'] =
+            self.stored_conn.get(args.connection, "host")
+            self.connection_data['database'] =
+            self.stored_conn.get(args.connection, "database")
             self.connection_data['conn'] = args.connection
-            self.connection_data['port'] = config.get(args.connection, "port")
+            self.connection_data['port'] =
+            self.stored_conn.get(args.connection, "port")
             try:
-                self.connection_data['port'] = config.get(args.connection,
-                                                          'port')
+                self.connection_data['port'] =
+                self.stored_conn.get(args.connection, 'port')
             except:
                 pass
 
@@ -255,17 +260,21 @@ class Console(cmd2.Cmd):
         """
         Shows the server info
         """
-        welcome = '.:: Welcome to TOMy %s!' % (self.version)
         server_info = self.connection.get_server_info()
         server_status = self.connection.stat()
         server_connection_id = self.connection.thread_id()
-        print welcome
         print '.:: Server version: %s'\
             % (self.colorize(server_info, 'green'))
         print '.:: Server status: %s'\
             % (self.colorize(server_status, 'green'))
         print '.:: Server connection id: %s \n'\
             % (self.colorize(str(server_connection_id), 'green'))
+
+    def get_welcome(self):
+        """
+        """
+        welcome = '.:: Welcome to TOMy %s!' % (self.version)
+        print welcome
 
     def get_databases(self):
         """
@@ -357,6 +366,12 @@ class Console(cmd2.Cmd):
 
     do_ = default
 
+    def get_stored_connections(self):
+        """
+        """
+        self.stored_conn = ConfigParser.ConfigParser()
+        self.stored_conn.read(".connections")
+
     def do_connect(self, conn_name):
         """
         Connect to another MySQL server.
@@ -367,6 +382,14 @@ class Console(cmd2.Cmd):
         else:
             self.args.connection = conn_name
             self.connect(self.args)
+
+    def complete_connect(self, text, line, begidx, endidx):
+        """
+        Completions for connect command
+        """
+        candidates = self.stored_conn.sections()
+        completions = [d for d in candidates if d.startswith(text)]
+        return completions
 
     def do_quit(self, s):
         print "Good Bye!!!"
