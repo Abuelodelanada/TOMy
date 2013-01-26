@@ -242,9 +242,15 @@ class Console(cmd2.Cmd):
         """
         welcome = '.:: Welcome to TOMy!'
         server_info = self.connection.get_server_info()
+        server_status = self.connection.stat()
+        server_connection_id = self.connection.thread_id()
         print welcome
-        print '.:: Server version: %s\n '\
+        print '.:: Server version: %s'\
             % (self.colorize(server_info, 'green'))
+        print '.:: Server status: %s'\
+            % (self.colorize(server_status, 'green'))
+        print '.:: Server connection id: %s \n'\
+            % (self.colorize(str(server_connection_id), 'green'))
 
     def get_databases(self):
         """
