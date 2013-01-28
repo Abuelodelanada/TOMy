@@ -17,4 +17,4 @@ host: localhost
 user: postgres
 database: tryton_academia
 port: 5432
-engine: postgres
+engine: postgresql

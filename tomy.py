@@ -14,7 +14,7 @@ import commands
 import copy
 
 from EngineMySQL import *
-from EnginePostgres import *
+from EnginePostgreSQL import *
 
 logging.basicConfig(level=logging.FATAL)
 
@@ -134,41 +134,43 @@ class Console(cmd2.Cmd):
                 db = ''
             else:
                 db = args.database
-            if(args.port is None):
-                db_port = 3306
-            else:
-                db_port = args.port
-
-            try:
-                if('default' not in self.connections):
-                    self.connection = MySQLdb.connect(host=db_host,
-                                                      user=args.user,
-                                                      passwd=db_pass,
-                                                      db=db,
-                                                      port=db_port)
-                    self.cursor = self.connection.cursor()
+            if(args.engine == 'mysql'):
+                db_engine = args.engine
+                if(args.port is None):
+                    db_port = 3306
                 else:
-                    self.cursor = self.connections['default']
+                    db_port = args.port
+            elif(args.engine == 'postgresql'):
+                db_engine = args.engine
+                if(args.port is None):
+                    db_port = 5432
+                else:
+                    db_port = args.port
+            else:
+                sys.exit('%s is not a supported database engine')\
+                % (args.engine)
 
-                self.mysql_server_info()
-                self.connection_data['host'] = db_host
-                self.connection_data['user'] = args.user
-                self.connection_data['database'] = db
-                self.connection_data['port'] = db_port
-                self.connection_data['conn'] = 'default'
-                self.connections['default'] = self.cursor
-                self.prompt = self.get_prompt(self.connection_data['user'],
-                                              self.connection_data['host'],
-                                              self.connection_data['database'])
+            #try:
+            if('default' not in self.connections):
+                self.engine_connect(self.connection_data, db_pass)
+            else:
+                self.cursor = self.connections['default']
 
-                self.get_databases()
-                self.get_tables(str(self.connection_data['database']))
-                self.get_columns(str(self.connection_data['database']))
-                self.get_saved_queries()
-            except:
-                sys.exit(u"Access denied for user '%s'@'%s'" %
-                         (self.connection_data['user'],
-                          self.connection_data['host']))
+            self.connection_data['host'] = db_host
+            self.connection_data['user'] = args.user
+            self.connection_data['database'] = db
+            self.connection_data['port'] = db_port
+            self.connection_data['conn'] = 'default'
+            self.connections['default'] = self.cursor
+            self.prompt = self.get_prompt(self.connection_data['user'],
+                                          self.connection_data['host'],
+                                          self.connection_data['database'])
+
+            self.get_saved_queries()
+            #except:
+            #    sys.exit(u"Access denied for user '%s'@'%s'" %
+            #             (self.connection_data['user'],
+            #              self.connection_data['host']))
 
         elif(args.connection is not None):
             self.get_stored_connections()
@@ -223,7 +225,7 @@ class Console(cmd2.Cmd):
         db_db = conn_data['database']
         db_port = int(conn_data['port'])
 
-        if(db_engine == 'postgres'):
+        if(db_engine == 'postgresql'):
             self.connection = psycopg2.connect(user=db_user,
                                                password=db_passwd,
                                                database=db_db,
@@ -231,7 +233,7 @@ class Console(cmd2.Cmd):
                                                host=db_host)
             self.cursor = self.connection.cursor()
             self.connections[conn_data['conn']] = self.cursor
-            self.postgres_server_info()
+            self.postgresql_server_info()
 
         elif(db_engine == 'mysql'):
             self.connection = MySQLdb.connect(host=db_host,
@@ -313,12 +315,12 @@ class Console(cmd2.Cmd):
         print '.:: Server connection id: %s \n'\
             % (self.colorize(str(server_connection_id), 'green'))
 
-    def postgres_server_info(self):
+    def postgresql_server_info(self):
         """
         Shows the server info
         """
-        a = EnginePostgres()
-        b = EnginePostgres.server_info(a, self.connection)
+        a = EnginePostgreSQL()
+        b = EnginePostgreSQL.server_info(a, self.connection)
         server_version = b[0]
         server_pid = b[1]
         print '.:: Server version: %s'\
