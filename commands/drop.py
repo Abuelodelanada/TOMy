@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import commands
+from EngineMySQL import *
 
 
 class Drop(commands.Command):
@@ -17,7 +18,10 @@ class Drop(commands.Command):
             self.console.connection_data['user'],
             self.console.connection_data['host'],
             self.console.connection_data['database'])
-        self.console.get_databases()
+
+        a = EngineMySQL()
+        self.console.databases = EngineMySQL.get_databases(a,
+                                                           self.console.cursor)
 
     def help(self):
         help = """DROP [database] [table] [user]"""

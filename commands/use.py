@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import commands
+from EngineMySQL import *
 
 
 class Use(commands.Command):
@@ -12,8 +13,15 @@ class Use(commands.Command):
             self.console.connection_data['user'],
             self.console.connection_data['host'],
             self.console.connection_data['database'])
-        self.console.get_tables(stm)
-        self.console.get_columns(stm)
+        a = EngineMySQL()
+        self.console.databases = EngineMySQL.get_databases(a,
+                                                           self.console.cursor)
+        self.console.tables = EngineMySQL.get_tables(a,
+                                                     self.console.cursor,
+                                                     stm)
+        self.console.columns = EngineMySQL.get_columns(a,
+                                                       self.console.cursor,
+                                                       stm)
 
     def help(self):
         help = """Change the database:
