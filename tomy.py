@@ -70,6 +70,8 @@ class Console(cmd2.Cmd):
         self.get_stored_connections()
 
         # Se instalan los comandos (tipo plugins)
+        # FIXME: Son sólo para MySQL, hay que instalar
+        #comandos en función del motor
         commands.Select().install(self)
         commands.Insert().install(self)
         commands.Show().install(self)
