@@ -150,27 +150,29 @@ class Console(cmd2.Cmd):
                 sys.exit('%s is not a supported database engine')\
                 % (args.engine)
 
-            #try:
-            if('default' not in self.connections):
-                self.engine_connect(self.connection_data, db_pass)
-            else:
-                self.cursor = self.connections['default']
+            try:
+                self.connection_data['host'] = db_host
+                self.connection_data['user'] = args.user
+                self.connection_data['database'] = db
+                self.connection_data['port'] = db_port
+                self.connection_data['conn'] = 'default'
+                self.connection_data['engine'] = db_engine
 
-            self.connection_data['host'] = db_host
-            self.connection_data['user'] = args.user
-            self.connection_data['database'] = db
-            self.connection_data['port'] = db_port
-            self.connection_data['conn'] = 'default'
-            self.connections['default'] = self.cursor
-            self.prompt = self.get_prompt(self.connection_data['user'],
-                                          self.connection_data['host'],
-                                          self.connection_data['database'])
+                if('default' not in self.connections):
+                    self.engine_connect(self.connection_data, db_pass)
+                else:
+                    self.cursor = self.connections['default']
 
-            self.get_saved_queries()
-            #except:
-            #    sys.exit(u"Access denied for user '%s'@'%s'" %
-            #             (self.connection_data['user'],
-            #              self.connection_data['host']))
+                self.connections['default'] = self.cursor
+                self.prompt = self.get_prompt(self.connection_data['user'],
+                                              self.connection_data['host'],
+                                              self.connection_data['database'])
+
+                self.get_saved_queries()
+            except:
+                sys.exit(u"Access denied for user '%s'@'%s'" %
+                         (self.connection_data['user'],
+                          self.connection_data['host']))
 
         elif(args.connection is not None):
             self.get_stored_connections()
@@ -308,6 +310,8 @@ class Console(cmd2.Cmd):
         server_info = b[0]
         server_status = b[1]
         server_connection_id = b[2]
+        print '.:: Server engine: %s'\
+            % (self.colorize('MySQL', 'green'))
         print '.:: Server version: %s'\
             % (self.colorize(server_info, 'green'))
         print '.:: Server status: %s'\
@@ -323,6 +327,8 @@ class Console(cmd2.Cmd):
         b = EnginePostgreSQL.server_info(a, self.connection)
         server_version = b[0]
         server_pid = b[1]
+        print '.:: Server engine: %s'\
+            % (self.colorize('PostgreSQL', 'green'))
         print '.:: Server version: %s'\
             % (self.colorize(server_version, 'green'))
         print '.:: Server connection id: %s \n'\
