@@ -427,8 +427,10 @@ class Console(cmd2.Cmd):
         return completions
 
     def do_quit(self, s):
+        for conn in self.connections:
+            print 'Closing connection: ' + conn
+            self.connections[conn].close
         print "Good Bye!!!"
-        self.connection.close()
         return True
     do_exit = do_quit
 
