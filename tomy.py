@@ -31,6 +31,7 @@ class Console(cmd2.Cmd):
                        'database': '', 'port': 3306, 'conn': '',
                        'engine': ''}
     connections = {}
+    cursors = {}
     stored_conn = ''
     databases = []
     tables = []
@@ -160,16 +161,17 @@ class Console(cmd2.Cmd):
                 self.connection_data['conn'] = 'default'
                 self.connection_data['engine'] = db_engine
 
-                if('default' not in self.connections):
+                if('default' not in self.cursors):
                     self.engine_connect(self.connection_data, db_pass)
                 else:
-                    self.cursor = self.connections['default']
+                    self.cursor = self.cursors['default']
+                    self.connection = self.connections['default']
 
-                self.connections['default'] = self.cursor
+                self.cursors['default'] = self.cursor
+                self.connections['default'] = self.connection
                 self.prompt = self.get_prompt(self.connection_data['user'],
                                               self.connection_data['host'],
                                               self.connection_data['database'])
-
                 self.get_saved_queries()
             except:
                 sys.exit(u"Access denied for user '%s'@'%s'" %
@@ -207,7 +209,8 @@ class Console(cmd2.Cmd):
                     db_pass = getpass.getpass()
                     self.engine_connect(self.connection_data, db_pass)
                 else:
-                    self.cursor = self.connections[args.connection]
+                    self.cursor = self.cursors[args.connection]
+                    self.connection = self.connections[args.connection]
 
                 self.prompt = self.get_prompt(self.connection_data['user'],
                                               self.connection_data['host'],
@@ -236,7 +239,8 @@ class Console(cmd2.Cmd):
                                                port=db_port,
                                                host=db_host)
             self.cursor = self.connection.cursor()
-            self.connections[conn_data['conn']] = self.cursor
+            self.cursors[conn_data['conn']] = self.cursor
+            self.connections[conn_data['conn']] = self.connection
             self.postgresql_server_info()
 
         elif(db_engine == 'mysql'):
@@ -246,7 +250,8 @@ class Console(cmd2.Cmd):
                                               db=db_db,
                                               port=db_port)
             self.cursor = self.connection.cursor()
-            self.connections[conn_data['conn']] = self.cursor
+            self.cursors[conn_data['conn']] = self.cursor
+            self.connections[conn_data['conn']] = self.connection
             self.mysql_server_info()
             a = EngineMySQL()
             self.databases = EngineMySQL.get_databases(a, self.cursor)
