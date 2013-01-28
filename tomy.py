@@ -70,16 +70,6 @@ class Console(cmd2.Cmd):
         self.color_config_dict['result_bold'] = _result_bold
         self.get_stored_connections()
 
-        # Se instalan los comandos (tipo plugins)
-        # FIXME: Son sólo para MySQL, hay que instalar
-        #comandos en función del motor
-        commands.Select().install(self)
-        commands.Insert().install(self)
-        commands.Show().install(self)
-        commands.Drop().install(self)
-        commands.Use().install(self)
-        commands.Desc().install(self)
-
     def arguments(self):
         """
         Parse arguments
@@ -160,6 +150,7 @@ class Console(cmd2.Cmd):
                 self.connection_data['port'] = db_port
                 self.connection_data['conn'] = 'default'
                 self.connection_data['engine'] = db_engine
+                self.install_engine_methods(db_engine)
 
                 if('default' not in self.cursors):
                     self.engine_connect(self.connection_data, db_pass)
@@ -204,6 +195,7 @@ class Console(cmd2.Cmd):
             except:
                 pass
 
+            self.install_engine_methods(self.connection_data['engine'])
             try:
                 if(args.connection not in self.connections):
                     db_pass = getpass.getpass()
@@ -257,6 +249,19 @@ class Console(cmd2.Cmd):
             self.databases = EngineMySQL.get_databases(a, self.cursor)
             self.tables = EngineMySQL.get_tables(a, self.cursor, db_db)
             self.columns = EngineMySQL.get_columns(a, self.cursor, db_db)
+
+    def install_engine_methods(self, engine):
+        """
+        """
+        # Se instalan los comandos (tipo plugins)
+        # FIXME: Son sólo para MySQL, hay que instalar
+        #comandos en función del motor
+        commands.Select().install(self)
+        commands.Insert().install(self)
+        commands.Show().install(self)
+        commands.Drop().install(self)
+        commands.Use().install(self)
+        commands.Desc().install(self)
 
     def get_prompt(self, user, host, database='None'):
         """

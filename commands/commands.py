@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
 class Command:
 
     def install(self, console):
@@ -11,8 +12,8 @@ class Command:
         for m in methods:
             # referencia al metodo
             handler = getattr(self, m)
-            setattr(console, "%s_%s" %(m, command.lower()), handler)
-            setattr(console, "%s_%s" %(m, command.upper()), handler)
+            setattr(console, "%s_%s" % (m, command.lower()), handler)
+            setattr(console, "%s_%s" % (m, command.upper()), handler)
 
     def do(self, stm):
         pass
