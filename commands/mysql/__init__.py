@@ -7,4 +7,5 @@ from Drop import Drop
 from Insert import Insert
 from Select import Select
 from Show import Show
+from Set import Set
 from Use import Use

@@ -263,6 +263,7 @@ class Console(cmd2.Cmd):
             commands.mysql.Drop().install(self)
             commands.mysql.Use().install(self)
             commands.mysql.Desc().install(self)
+            commands.mysql.Set().install(self)
         elif(engine == 'postgresql'):
             commands.postgresql.Desc().install(self)
 
