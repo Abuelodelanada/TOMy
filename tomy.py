@@ -256,12 +256,12 @@ class Console(cmd2.Cmd):
         # Se instalan los comandos (tipo plugins)
         # FIXME: Son sólo para MySQL, hay que instalar
         #comandos en función del motor
-        commands.Select().install(self)
-        commands.Insert().install(self)
-        commands.Show().install(self)
-        commands.Drop().install(self)
-        commands.Use().install(self)
-        commands.Desc().install(self)
+        commands.mysql.Select().install(self)
+        commands.mysql.Insert().install(self)
+        commands.mysql.Show().install(self)
+        commands.mysql.Drop().install(self)
+        commands.mysql.Use().install(self)
+        commands.mysql.Desc().install(self)
 
     def get_prompt(self, user, host, database='None'):
         """
