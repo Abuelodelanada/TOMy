@@ -552,25 +552,36 @@ class Console(cmd2.Cmd):
         for i in rows:
             line = ""
             for j in range(len(i)):
+                field_value = self.None2NULL(str(i[j]))
+
                 if(self.color_config_dict['result'] in self.colors):
-                    r = self.colorize(str(i[j]),
+                    r = self.colorize(field_value,
                                       self.color_config_dict['result'])
                 else:
-                    r = str(i[j])
+                    r = field_value
 
                 if(self.color_config_dict['result_bold'] == 'True'):
                     r = self.colorize(r, 'bold')
 
-                if(self.is_number(str(i[j])) is True):
-                    line += pipe + " " * (fieldlen[j] - len(str(i[j]))) +\
+                if(self.is_number(field_value) is True):
+                    line += pipe + " " * (fieldlen[j] - len(field_value)) +\
                         " %s " % r
                 else:
                     line += pipe + " %s" % r + " " * (fieldlen[j] -
-                                                      len(str(i[j]))) + " "
+                                                      len(field_value)) + " "
             out.append(line + pipe)
 
         out.append(bar)
         print "\r\n".join(out)
+
+    def None2NULL(self, none):
+        """
+        I should learn how to use MySQLdb convertions
+        """
+        if(none == 'None'):
+            return 'NULL'
+        else:
+            return none
 
     def is_number(self, s):
         try:
