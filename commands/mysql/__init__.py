@@ -3,6 +3,7 @@
 
 
 from Desc import Desc
+from Delete import Delete
 from Drop import Drop
 from Insert import Insert
 from Select import Select

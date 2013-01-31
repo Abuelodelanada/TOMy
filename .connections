@@ -4,6 +4,7 @@ user: root
 database: gca_31
 port: 3306
 engine: mysql
+autocommit: True
 
 [mysql2]
 host: localhost
@@ -11,6 +12,16 @@ user: root
 database: gca_30
 port: 3306
 engine: mysql
+autocommit: False
+
+[mysqlcentos]
+host: mysqlcentos
+user: root
+database: gca_jose
+port: 3306
+engine: mysql
+autocommit: True
+
 
 [pg]
 host: localhost
@@ -18,3 +29,4 @@ user: postgres
 database: tryton_academia
 port: 5432
 engine: postgresql
+autocommit: False

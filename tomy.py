@@ -29,7 +29,7 @@ class Console(cmd2.Cmd):
     default_args = ''
     connection_data = {'host': '', 'user': '',
                        'database': '', 'port': 3306, 'conn': '',
-                       'engine': ''}
+                       'engine': '', 'autocommit': 'True'}
     connections = {}
     cursors = {}
     stored_conn = ''
@@ -189,6 +189,9 @@ class Console(cmd2.Cmd):
             self.connection_data['engine'] =\
             self.stored_conn.get(args.connection, "engine")
 
+            self.connection_data['autocommit'] =\
+            self.stored_conn.get(args.connection, "autocommit")
+
             try:
                 self.connection_data['port'] =\
                 self.stored_conn.get(args.connection, 'port')
@@ -196,22 +199,22 @@ class Console(cmd2.Cmd):
                 pass
 
             self.install_engine_methods(self.connection_data['engine'])
-            try:
-                if(args.connection not in self.connections):
-                    db_pass = getpass.getpass()
-                    self.engine_connect(self.connection_data, db_pass)
-                else:
-                    self.cursor = self.cursors[args.connection]
-                    self.connection = self.connections[args.connection]
+            #try:
+            if(args.connection not in self.connections):
+                db_pass = getpass.getpass()
+                self.engine_connect(self.connection_data, db_pass)
+            else:
+                self.cursor = self.cursors[args.connection]
+                self.connection = self.connections[args.connection]
 
-                self.prompt = self.get_prompt(self.connection_data['user'],
-                                              self.connection_data['host'],
-                                              self.connection_data['database'])
-                self.get_saved_queries()
-            except:
-                sys.exit(u"Access denied for user '%s'@'%s'"
-                         % (self.connection_data['user'],
-                            self.connection_data['host']))
+            self.prompt = self.get_prompt(self.connection_data['user'],
+                                          self.connection_data['host'],
+                                          self.connection_data['database'])
+            self.get_saved_queries()
+            #except:
+            #    sys.exit(u"Access denied for user '%s'@'%s'"
+            #             % (self.connection_data['user'],
+            #                self.connection_data['host']))
         else:
             sys.exit(u"Please, use -h option to know about how to use TOMy")
 
@@ -263,6 +266,7 @@ class Console(cmd2.Cmd):
             commands.mysql.Drop().install(self)
             commands.mysql.Use().install(self)
             commands.mysql.Desc().install(self)
+            commands.mysql.Delete().install(self)
             commands.mysql.Set().install(self)
         elif(engine == 'postgresql'):
             commands.postgresql.Desc().install(self)
@@ -299,6 +303,8 @@ class Console(cmd2.Cmd):
             logging.error('Wrong section definition')
 
         prompt = 'conn: %s\n' % self.connection_data['conn']
+        prompt = prompt + 'AutoCommit: %s\n'\
+                 % (self.connection_data['autocommit'])
         if(prompt_config_dict['show_user'] == 'True'):
             if(prompt_config_dict['show_host'] == 'True'):
                 prompt = '%s<%s@%s>' % (prompt, user, host)
