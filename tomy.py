@@ -30,7 +30,7 @@ class Console(cmd2.Cmd):
     default_args = ''
     connection_data = {'host': '', 'user': '',
                        'database': '', 'port': 3306, 'conn': '',
-                       'engine': '', 'autocommit': 'True'}
+                       'engine': '', 'autocommit': 'ON'}
     connections = {}
     cursors = {}
     stored_conn = ''
@@ -161,9 +161,11 @@ class Console(cmd2.Cmd):
 
                 self.cursors['default'] = self.cursor
                 self.connections['default'] = self.connection
-                self.prompt = self.get_prompt(self.connection_data['user'],
-                                              self.connection_data['host'],
-                                              self.connection_data['database'])
+                self.prompt = self.get_prompt(
+                    self.connection_data['user'],
+                    self.connection_data['host'],
+                    self.connection_data['database'],
+                    self.connection_data['autocommit'])
                 self.get_saved_queries()
             except:
                 sys.exit(u"Access denied for user '%s'@'%s'" %
@@ -200,22 +202,24 @@ class Console(cmd2.Cmd):
                 pass
 
             self.install_engine_methods(self.connection_data['engine'])
-            #try:
-            if(args.connection not in self.connections):
-                db_pass = getpass.getpass()
-                self.engine_connect(self.connection_data, db_pass)
-            else:
-                self.cursor = self.cursors[args.connection]
-                self.connection = self.connections[args.connection]
+            try:
+                if(args.connection not in self.connections):
+                    db_pass = getpass.getpass()
+                    self.engine_connect(self.connection_data, db_pass)
+                else:
+                    self.cursor = self.cursors[args.connection]
+                    self.connection = self.connections[args.connection]
 
-            self.prompt = self.get_prompt(self.connection_data['user'],
-                                          self.connection_data['host'],
-                                          self.connection_data['database'])
-            self.get_saved_queries()
-            #except:
-            #    sys.exit(u"Access denied for user '%s'@'%s'"
-            #             % (self.connection_data['user'],
-            #                self.connection_data['host']))
+                self.prompt = self.get_prompt(
+                    self.connection_data['user'],
+                    self.connection_data['host'],
+                    self.connection_data['database'],
+                    self.connection_data['autocommit'])
+                self.get_saved_queries()
+            except:
+                sys.exit(u"Access denied for user '%s'@'%s'"
+                         % (self.connection_data['user'],
+                            self.connection_data['host']))
         else:
             sys.exit(u"Please, use -h option to know about how to use TOMy")
 
@@ -280,7 +284,7 @@ class Console(cmd2.Cmd):
         elif(engine == 'postgresql'):
             commands.postgresql.Desc().install(self)
 
-    def get_prompt(self, user, host, database='None'):
+    def get_prompt(self, user, host, database='None', autocommit='ON'):
         """
         Get a prompt
         """
@@ -291,13 +295,13 @@ class Console(cmd2.Cmd):
         self.connection_data['host'] = host
         self.connection_data['user'] = user
         self.connection_data['database'] = database
-        autocommit = self.connection_data['autocommit']
+        self.connection_data['autocommit'] = autocommit
 
         if(user == 'root'):
             user = self.colorize(user, 'red')
             user = self.colorize(user, 'bold')
 
-        if(autocommit == 'True'):
+        if(autocommit == 'ON'):
             autocommit = self.colorize(autocommit, 'red')
             autocommit = self.colorize(autocommit, 'bold')
         else:
@@ -390,6 +394,14 @@ class Console(cmd2.Cmd):
 
         for sq in saved_queries.items('queries'):
             self.saved_queries.append(sq[0])
+
+    def raw_query(self, query):
+        """
+        Execute a query and get the result without format
+        """
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        return result
 
     def default(self, s):
         """
