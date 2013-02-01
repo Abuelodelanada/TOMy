@@ -13,6 +13,7 @@ import logging
 import commands
 import copy
 
+
 from EngineMySQL import *
 from EnginePostgreSQL import *
 
@@ -233,6 +234,10 @@ class Console(cmd2.Cmd):
                                                database=db_db,
                                                port=db_port,
                                                host=db_host)
+            if(conn_data['autocommit'] == 'True'):
+                self.connection.autocommit = True
+            else:
+                self.connection.autocommit = False
             self.cursor = self.connection.cursor()
             self.cursors[conn_data['conn']] = self.cursor
             self.connections[conn_data['conn']] = self.connection
@@ -244,6 +249,10 @@ class Console(cmd2.Cmd):
                                               passwd=db_passwd,
                                               db=db_db,
                                               port=db_port)
+            if(conn_data['autocommit'] == 'True'):
+                self.connection.autocommit(True)
+            else:
+                self.connection.autocommit(False)
             self.cursor = self.connection.cursor()
             self.cursors[conn_data['conn']] = self.cursor
             self.connections[conn_data['conn']] = self.connection
@@ -282,9 +291,18 @@ class Console(cmd2.Cmd):
         self.connection_data['host'] = host
         self.connection_data['user'] = user
         self.connection_data['database'] = database
+        autocommit = self.connection_data['autocommit']
+
         if(user == 'root'):
             user = self.colorize(user, 'red')
             user = self.colorize(user, 'bold')
+
+        if(autocommit == 'True'):
+            autocommit = self.colorize(autocommit, 'red')
+            autocommit = self.colorize(autocommit, 'bold')
+        else:
+            autocommit = self.colorize(autocommit, 'green')
+            autocommit = self.colorize(autocommit, 'bold')
 
         try:
             prompt_config = ConfigParser.ConfigParser()
@@ -304,7 +322,7 @@ class Console(cmd2.Cmd):
 
         prompt = 'conn: %s\n' % self.connection_data['conn']
         prompt = prompt + 'AutoCommit: %s\n'\
-                 % (self.connection_data['autocommit'])
+                 % (autocommit)
         if(prompt_config_dict['show_user'] == 'True'):
             if(prompt_config_dict['show_host'] == 'True'):
                 prompt = '%s<%s@%s>' % (prompt, user, host)
@@ -394,7 +412,7 @@ class Console(cmd2.Cmd):
             if(rows_modified is not None):
                 print rows_modified + '\n'
                 #TODO: Is this the best site to do this?
-                self.connection.autocommit(True)
+
             else:
                 print str(rows_count) + ' rows\n'
 
