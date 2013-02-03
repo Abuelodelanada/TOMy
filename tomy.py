@@ -238,7 +238,7 @@ class Console(cmd2.Cmd):
                                                database=db_db,
                                                port=db_port,
                                                host=db_host)
-            if(conn_data['autocommit'] == 'True'):
+            if(conn_data['autocommit'].upper() == 'ON'):
                 self.connection.autocommit = True
             else:
                 self.connection.autocommit = False
@@ -253,8 +253,9 @@ class Console(cmd2.Cmd):
                                               passwd=db_passwd,
                                               db=db_db,
                                               port=db_port)
-            if(conn_data['autocommit'] == 'True'):
+            if(conn_data['autocommit'].upper() == 'ON'):
                 self.connection.autocommit(True)
+                print "ON"
             else:
                 self.connection.autocommit(False)
             self.cursor = self.connection.cursor()
@@ -289,8 +290,8 @@ class Console(cmd2.Cmd):
         Get a prompt
         """
         # Custom settings if you don't have set up in .config file
-        prompt_config_dict = {'show_user': False, 'show_host': False,
-                              'show_db': False, 'prompt_char': '>>>'}
+        prompt_config_dict = {'show_user': 'false', 'show_host': 'false',
+                              'show_db': 'false', 'prompt_char': '>>>'}
 
         self.connection_data['host'] = host
         self.connection_data['user'] = user
@@ -301,7 +302,7 @@ class Console(cmd2.Cmd):
             user = self.colorize(user, 'red')
             user = self.colorize(user, 'bold')
 
-        if(autocommit == 'ON'):
+        if(autocommit.upper() == 'ON'):
             autocommit = self.colorize(autocommit, 'red')
             autocommit = self.colorize(autocommit, 'bold')
         else:
@@ -312,12 +313,14 @@ class Console(cmd2.Cmd):
             prompt_config = ConfigParser.ConfigParser()
             prompt_config.read('.config')
             prompt_config_dict['show_user'] = prompt_config.get('prompt',
-                                                                "show_user")
+                                                                "show_user"
+                                                               ).lower()
             prompt_config_dict['show_host'] = prompt_config.get('prompt',
-                                                                "show_host")
+                                                                "show_host"
+                                                               ).lower()
             prompt_config_dict['show_db'] = prompt_config.get('prompt',
-                                                              "show_db")
-
+                                                              "show_db"
+                                                             ).lower()
             prompt_config_dict['prompt_char'] = prompt_config.get('prompt',
                                                                 "prompt_char")
         except:
@@ -327,18 +330,18 @@ class Console(cmd2.Cmd):
         prompt = 'conn: %s\n' % self.connection_data['conn']
         prompt = prompt + 'AutoCommit: %s\n'\
                  % (autocommit)
-        if(prompt_config_dict['show_user'] == 'True'):
-            if(prompt_config_dict['show_host'] == 'True'):
+        if(prompt_config_dict['show_user'] == 'true'):
+            if(prompt_config_dict['show_host'] == 'true'):
                 prompt = '%s<%s@%s>' % (prompt, user, host)
             else:
                 prompt = '%s<%s>' % (prompt, user)
         else:
-            if(prompt_config_dict['show_host'] == 'True'):
+            if(prompt_config_dict['show_host'] == 'true'):
                 prompt = '%s<%s>' % (prompt, host)
             else:
                 pass
 
-        if(prompt_config_dict['show_db'] == 'True'):
+        if(prompt_config_dict['show_db'] == 'true'):
             prompt = '%s [%s] ' % (prompt, database)
 
         prompt = prompt + prompt_config_dict['prompt_char'] + ' '
@@ -403,12 +406,10 @@ class Console(cmd2.Cmd):
         result = self.cursor.fetchall()
         return result
 
-    def default(self, s):
+    def default(self, query):
         """
         Override the superclass method default to get the imput
         """
-
-        query = s
 
         try:
             self.cursor.execute(query)
