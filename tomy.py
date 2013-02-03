@@ -255,7 +255,6 @@ class Console(cmd2.Cmd):
                                               port=db_port)
             if(conn_data['autocommit'].upper() == 'ON'):
                 self.connection.autocommit(True)
-                print "ON"
             else:
                 self.connection.autocommit(False)
             self.cursor = self.connection.cursor()
@@ -497,7 +496,7 @@ class Console(cmd2.Cmd):
             saved_queries.write(f)
 
         self.get_saved_queries()
-        print "\n"
+        print "Saved query as '%s' \n" % (stm)
 
     def do_recover_query(self, stm):
         """
