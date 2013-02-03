@@ -420,14 +420,14 @@ class Console(cmd2.Cmd):
                 self.format_output(header, result)
 
             rows_count = self.cursor.rowcount
-            rows_modified = self.connection.info()
 
-            if(rows_modified is not None):
-                print rows_modified + '\n'
-                #TODO: Is this the best site to do this?
-
-            else:
-                print str(rows_count) + ' rows\n'
+            if(self.connection_data['autocommit'] == 'mysql'):
+                rows_modified = self.connection.info()
+                if(rows_modified is not None):
+                    print rows_modified + '\n'
+                    #TODO: Is this the best site to do this?
+                else:
+                    print str(rows_count) + ' rows\n'
 
         except (_mysql_exceptions.DataError,
                 _mysql_exceptions.IntegrityError,
