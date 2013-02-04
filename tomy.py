@@ -43,6 +43,7 @@ class Console(cmd2.Cmd):
                          'UPDATE', 'USE']
     saved_queries_file = 'saved_queries.txt'
     saved_queries = []
+    aliases = {}
 
     def __init__(self):
         """Constructor"""
@@ -246,6 +247,9 @@ class Console(cmd2.Cmd):
             self.cursors[conn_data['conn']] = self.cursor
             self.connections[conn_data['conn']] = self.connection
             self.postgresql_server_info()
+            aliases = ConfigParser.ConfigParser()
+            aliases.read('.alias')
+            self.aliases = dict(aliases.items('pg_alias'))
 
         elif(db_engine == 'mysql'):
             self.connection = MySQLdb.connect(host=db_host,
@@ -409,7 +413,18 @@ class Console(cmd2.Cmd):
         """
         Override the superclass method default to get the imput
         """
+        a = str(query).strip()
+        if(a in self.aliases.keys()):
+            self.execute_query(self.aliases[a])
+        else:
+            self.execute_query(query)
 
+    do_ = default
+
+    def execute_query(self, query):
+        """
+        Executes query in engine
+        """
         try:
             self.cursor.execute(query)
             header = self.cursor.description
@@ -441,10 +456,8 @@ class Console(cmd2.Cmd):
                 _mysql_exceptions.OperationalError), e:
 
             print self.colorize(self.colorize('\nERROR ' + str(e[0]),
-                                'bold') + ': ' + e[1] +
-                                '\n', 'red')
-
-    do_ = default
+                                    'bold') + ': ' + e[1] +
+                                    '\n', 'red')
 
     def get_stored_connections(self):
         """
