@@ -16,6 +16,7 @@ import copy
 
 from EngineMySQL import *
 from EnginePostgreSQL import *
+from aliases import *
 
 logging.basicConfig(level=logging.FATAL)
 
@@ -247,9 +248,7 @@ class Console(cmd2.Cmd):
             self.cursors[conn_data['conn']] = self.cursor
             self.connections[conn_data['conn']] = self.connection
             self.postgresql_server_info()
-            aliases = ConfigParser.ConfigParser()
-            aliases.read('.alias')
-            self.aliases = dict(aliases.items('pg_alias'))
+            self.aliases = pg_alias
 
         elif(db_engine == 'mysql'):
             self.connection = MySQLdb.connect(host=db_host,
@@ -415,7 +414,7 @@ class Console(cmd2.Cmd):
         """
         a = str(query).strip()
         if(a in self.aliases.keys()):
-            self.execute_query(self.aliases[a])
+            self.execute_query(self.aliases[a][1])
         else:
             self.execute_query(query)
 
@@ -494,6 +493,14 @@ class Console(cmd2.Cmd):
 
     def help_quit(self):
         print "Quits the console"
+
+    def do_show_aliases(self, stm):
+        """
+        Show alias names and it's descriptions
+        """
+        print ""
+        for i in self.aliases:
+            print ("%s: %s") % (i, self.aliases[i][0])
 
     def do_save_query(self, stm):
         """
