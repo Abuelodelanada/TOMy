@@ -16,7 +16,7 @@ import copy
 
 from EngineMySQL import *
 from EnginePostgreSQL import *
-from aliases import *
+import aliases
 
 logging.basicConfig(level=logging.FATAL)
 
@@ -44,7 +44,8 @@ class Console(cmd2.Cmd):
                          'UPDATE', 'USE']
     saved_queries_file = 'saved_queries.txt'
     saved_queries = []
-    aliases = {}
+    mysql_aliases = aliases.mysql_aliases
+    pg_aliases = aliases.pg_aliases
 
     def __init__(self):
         """Constructor"""
@@ -248,7 +249,6 @@ class Console(cmd2.Cmd):
             self.cursors[conn_data['conn']] = self.cursor
             self.connections[conn_data['conn']] = self.connection
             self.postgresql_server_info()
-            self.aliases = pg_alias
 
         elif(db_engine == 'mysql'):
             self.connection = MySQLdb.connect(host=db_host,
@@ -499,8 +499,12 @@ class Console(cmd2.Cmd):
         Show alias names and it's descriptions
         """
         print ""
-        for i in self.aliases:
-            print ("%s: %s") % (i, self.aliases[i][0])
+        if(self.connection_data["engine"] == 'postgresql'):
+            for i in self.pg_aliases:
+                print ("%s: %s") % (i, self.pg_aliases[i][0])
+        elif(self.connection_data["engine"] == "mysql"):
+            for i in self.mysql_aliases:
+                print ("%s: %s") % (i, self.mysql_aliases[i][0])
 
     def do_save_query(self, stm):
         """
