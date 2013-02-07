@@ -434,7 +434,7 @@ class Console(cmd2.Cmd):
 
             rows_count = self.cursor.rowcount
 
-            if(self.connection_data['autocommit'] == 'mysql'):
+            if(self.connection_data['engine'] == 'mysql'):
                 rows_modified = self.connection.info()
                 if(rows_modified is not None):
                     print rows_modified + '\n'
