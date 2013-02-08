@@ -72,7 +72,6 @@ class Console(cmd2.Cmd):
         self.color_config_dict['borders_bold'] = _borders_bold
         self.color_config_dict['result'] = _result
         self.color_config_dict['result_bold'] = _result_bold
-        self.get_stored_connections()
 
     def arguments(self):
         """
@@ -178,25 +177,29 @@ class Console(cmd2.Cmd):
         elif(args.connection is not None):
             self.get_stored_connections()
 
-            self.connection_data['user'] =\
-            self.stored_conn.get(args.connection, "user")
+            if(self.stored_conn.has_section(args.connection)):
+                self.connection_data['user'] =\
+                                self.stored_conn.get(args.connection, "user")
 
-            self.connection_data['host'] =\
-            self.stored_conn.get(args.connection, "host")
+                self.connection_data['host'] =\
+                                self.stored_conn.get(args.connection, "host")
 
-            self.connection_data['database'] =\
-            self.stored_conn.get(args.connection, "database")
+                self.connection_data['database'] =\
+                            self.stored_conn.get(args.connection, "database")
 
-            self.connection_data['conn'] = args.connection
+                self.connection_data['conn'] = args.connection
 
-            self.connection_data['port'] =\
-            self.stored_conn.get(args.connection, "port")
+                self.connection_data['port'] =\
+                            self.stored_conn.get(args.connection, "port")
 
-            self.connection_data['engine'] =\
-            self.stored_conn.get(args.connection, "engine")
+                self.connection_data['engine'] =\
+                            self.stored_conn.get(args.connection, "engine")
 
-            self.connection_data['autocommit'] =\
-            self.stored_conn.get(args.connection, "autocommit")
+                self.connection_data['autocommit'] =\
+                            self.stored_conn.get(args.connection, "autocommit")
+            else:
+                sys.exit(u"%s secction is not defined in .connections file"
+                         % (args.connection))
 
             try:
                 self.connection_data['port'] =\
