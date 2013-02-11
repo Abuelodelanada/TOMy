@@ -44,8 +44,7 @@ class Console(cmd2.Cmd):
                          'UPDATE', 'USE']
     saved_queries_file = 'saved_queries.txt'
     saved_queries = []
-    mysql_aliases = aliases.mysql_aliases
-    pg_aliases = aliases.pg_aliases
+    all_aliases = {}
 
     def __init__(self):
         """Constructor"""
@@ -115,6 +114,7 @@ class Console(cmd2.Cmd):
         """
         This method is for connect to the database
         """
+        self.get_aliases()
 
         if(args.user is not None and args.connection is None):
 
@@ -415,9 +415,10 @@ class Console(cmd2.Cmd):
         """
         Override the superclass method default to get the imput
         """
+        engine = self.connection_data['engine']
         a = str(query).strip()
-        if(a in self.aliases.keys()):
-            self.execute_query(self.aliases[a][1])
+        if(a in self.all_aliases[engine].keys()):
+            self.execute_query(self.all_aliases[engine][a][1])
         else:
             self.execute_query(query)
 
@@ -501,13 +502,19 @@ class Console(cmd2.Cmd):
         """
         Show alias names and it's descriptions
         """
-        print ""
-        if(self.connection_data["engine"] == 'postgresql'):
-            for i in self.pg_aliases:
-                print ("%s: %s") % (i, self.pg_aliases[i][0])
-        elif(self.connection_data["engine"] == "mysql"):
-            for i in self.mysql_aliases:
-                print ("%s: %s") % (i, self.mysql_aliases[i][0])
+        engine = self.connection_data['engine']
+        if(engine == 'postgresql'):
+            for i in self.all_aliases[engine]:
+                print ("%s: %s") % (i, self.all_aliases[engine][i][0])
+        elif(engine == "mysql"):
+            for i in self.all_aliases[engine]:
+                print ("%s: %s") % (i, self.all_aliases[engine][i][0])
+
+    def get_aliases(self):
+        """
+        """
+        self.all_aliases['mysql'] = aliases.mysql_aliases
+        self.all_aliases['postgresql'] = aliases.postgresql_aliases
 
     def do_save_query(self, stm):
         """
