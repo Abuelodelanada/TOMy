@@ -1,6 +1,8 @@
 TOMy: Another MySQL and PostgreSQL console client
 =================================================
 
+[![Build Status](https://travis-ci.org/Abuelodelanada/TOMy.png?branch=master)](https://travis-ci.org/Abuelodelanada/TOMy)
+
 My own MySQL (and now PostgreSQL too) client, which I hope to have more features than the original ;-)
 
 Now, I have implemented the following features:
@@ -14,7 +16,6 @@ Now, I have implemented the following features:
 
 
 ![TOMy running](https://raw.github.com/Abuelodelanada/tomy/master/img/example.png "TOMy running")
-
 
 
 Wishlist
