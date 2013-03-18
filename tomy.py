@@ -54,6 +54,7 @@ class Console(cmd2.Cmd):
         self.get_color_config()
         self.connect(self.args)
         self.get_welcome()
+        self.get_aliases()
 
     def arguments(self):
         """
@@ -92,9 +93,8 @@ class Console(cmd2.Cmd):
 
     def connect(self, args):
         """
-        This method is for connect to the database
+        This method is for connecting to the database
         """
-        self.get_aliases()
 
         if(args.user is not None and args.connection is None):
 
