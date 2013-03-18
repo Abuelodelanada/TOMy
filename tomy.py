@@ -450,7 +450,7 @@ class Console(cmd2.Cmd):
 
     def do_connect(self, conn_name):
         """
-        Connect to another MySQL server.
+        Connect to another server.
         The connection data must be stored in .connections file
         """
         if(conn_name == 'default' and self.default_args is not None):
@@ -483,12 +483,8 @@ class Console(cmd2.Cmd):
         Show alias names and it's descriptions
         """
         engine = self.connection_data['engine']
-        if(engine == 'postgresql'):
-            for i in self.all_aliases[engine]:
-                print ("%s: %s") % (i, self.all_aliases[engine][i][0])
-        elif(engine == "mysql"):
-            for i in self.all_aliases[engine]:
-                print ("%s: %s") % (i, self.all_aliases[engine][i][0])
+        for i in self.all_aliases[engine]:
+            print ("%s: %s") % (i, self.all_aliases[engine][i][0])
 
     def get_aliases(self):
         """
