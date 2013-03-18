@@ -52,6 +52,7 @@ class Console(cmd2.Cmd):
         cmd2.Cmd.__init__(self)
         self.arguments()
         self.get_color_config()
+        self.connect(self.args)
 
     def arguments(self):
         """
@@ -89,7 +90,6 @@ class Console(cmd2.Cmd):
             self.default_args = copy.copy(self.args)
 
         self.get_welcome()
-        self.connect(self.args)
 
     def connect(self, args):
         """
