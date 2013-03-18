@@ -51,26 +51,7 @@ class Console(cmd2.Cmd):
 
         cmd2.Cmd.__init__(self)
         self.arguments()
-
-        # Custom settings if you don't have set up in .config file
-        self.color_config_dict = {'borders': 'red', 'borders_bold': 'True',
-                                  'result': None, 'result_bold': 'False'}
-        self.colors = ('red', 'cyan', 'green', 'magenta', 'blue')
-        self.color_config = ConfigParser.ConfigParser()
-        self.color_config.read('.config')
-
-        _color = self.color_config.get('colors', "borders",
-                                       vars=self.color_config_dict)
-        _borders_bold = self.color_config.get('colors', "borders_bold",
-                                              vars=self.color_config_dict)
-        _result = self.color_config.get('colors', "result",
-                                        vars=self.color_config_dict)
-        _result_bold = self.color_config.get('colors', "result_bold",
-                                             vars=self.color_config_dict)
-        self.color_config_dict['borders'] = _color
-        self.color_config_dict['borders_bold'] = _borders_bold
-        self.color_config_dict['result'] = _result
-        self.color_config_dict['result_bold'] = _result_bold
+        self.get_color_config()
 
     def arguments(self):
         """
@@ -515,6 +496,29 @@ class Console(cmd2.Cmd):
         """
         self.all_aliases['mysql'] = aliases.mysql_aliases
         self.all_aliases['postgresql'] = aliases.postgresql_aliases
+
+    def get_color_config(self):
+        """
+        """
+        # Custom settings if you don't have set up in .config file
+        self.color_config_dict = {'borders': 'red', 'borders_bold': 'True',
+                                  'result': None, 'result_bold': 'False'}
+        self.colors = ('red', 'cyan', 'green', 'magenta', 'blue')
+        self.color_config = ConfigParser.ConfigParser()
+        self.color_config.read('.config')
+
+        _color = self.color_config.get('colors', "borders",
+                                       vars=self.color_config_dict)
+        _borders_bold = self.color_config.get('colors', "borders_bold",
+                                              vars=self.color_config_dict)
+        _result = self.color_config.get('colors', "result",
+                                        vars=self.color_config_dict)
+        _result_bold = self.color_config.get('colors', "result_bold",
+                                             vars=self.color_config_dict)
+        self.color_config_dict['borders'] = _color
+        self.color_config_dict['borders_bold'] = _borders_bold
+        self.color_config_dict['result'] = _result
+        self.color_config_dict['result_bold'] = _result_bold
 
     def do_save_query(self, stm):
         """
