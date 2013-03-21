@@ -367,8 +367,6 @@ class Console(cmd2.Cmd):
             % (self.colorize(str(server_pid), 'green'))
 
     def get_welcome(self):
-        """
-        """
         welcome = '.:: Welcome to TOMy %s!' % (self.version)
         print welcome
 
@@ -443,8 +441,6 @@ class Console(cmd2.Cmd):
                                     '\n', 'red')
 
     def get_stored_connections(self):
-        """
-        """
         self.stored_conn = ConfigParser.ConfigParser()
         self.stored_conn.read(".connections")
 
@@ -487,14 +483,10 @@ class Console(cmd2.Cmd):
             print ("%s: %s") % (i, self.all_aliases[engine][i][0])
 
     def get_aliases(self):
-        """
-        """
         self.all_aliases['mysql'] = aliases.mysql_aliases
         self.all_aliases['postgresql'] = aliases.postgresql_aliases
 
     def get_color_config(self):
-        """
-        """
         # Custom settings if you don't have set up in .config file
         self.color_config_dict = {'borders': 'red', 'borders_bold': 'True',
                                   'result': None, 'result_bold': 'False'}
@@ -556,8 +548,6 @@ class Console(cmd2.Cmd):
         self.get_saved_queries()
 
     def complete_saved_queries(self, text, line, begidx, endidx):
-        """
-        """
         if not text:
             completions = self.saved_queries[:]
         else:
