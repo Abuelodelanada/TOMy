@@ -27,7 +27,5 @@ class Set(commands.Command):
         print help
 
     def get_autocommit(self):
-        """
-        """
         ac = self.console.raw_query("SHOW variables LIKE 'autocommit'")
         return ac[0][1]
