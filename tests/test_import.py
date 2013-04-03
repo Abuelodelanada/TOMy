@@ -1,3 +1,14 @@
 def test_import():
     import EngineMySQL
     import EnginePostgreSQL
+    import cmd2
+    import sys
+    import argparse
+    import MySQLdb
+    import psycopg2
+    import _mysql_exceptions
+    import ConfigParser
+    import getpass
+    import logging
+    import commands
+    import copy
