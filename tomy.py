@@ -13,7 +13,6 @@ import logging
 import commands
 import copy
 
-
 from EngineMySQL import *
 from EnginePostgreSQL import *
 import aliases
@@ -29,7 +28,7 @@ class Console(cmd2.Cmd):
     connection = ''
     args = ''
     default_args = ''
-    connection_data = {'host': '', 'user': '',
+    connection_data = {'host': '', 'user': '', 'pass': '',
                        'database': '', 'port': 3306, 'conn': '',
                        'engine': '', 'autocommit': 'ON'}
     connections = {}
@@ -169,9 +168,6 @@ class Console(cmd2.Cmd):
 
                 self.connection_data['conn'] = args.connection
 
-                self.connection_data['port'] =\
-                            self.stored_conn.get(args.connection, "port")
-
                 self.connection_data['engine'] =\
                             self.stored_conn.get(args.connection, "engine")
 
@@ -183,14 +179,24 @@ class Console(cmd2.Cmd):
 
             try:
                 self.connection_data['port'] =\
-                self.stored_conn.get(args.connection, 'port')
+                                self.stored_conn.get(args.connection, 'port')
             except:
                 pass
 
+            try:
+                self.connection_data['pass'] =\
+                                self.stored_conn.get(args.connection, "pass")
+            except:
+                self.connection_data.pop('pass')
+
             self.install_engine_methods(self.connection_data['engine'])
+
             try:
                 if(args.connection not in self.connections):
-                    db_pass = getpass.getpass()
+                    if('pass' in self.connection_data):
+                        db_pass = self.connection_data['pass']
+                    else:
+                        db_pass = getpass.getpass()
                     self.engine_connect(self.connection_data, db_pass)
                 else:
                     self.cursor = self.cursors[args.connection]
