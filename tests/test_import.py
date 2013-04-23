@@ -5,7 +5,6 @@ def test_import():
     import sys
     import argparse
     import MySQLdb
-    import psycopg2
     import _mysql_exceptions
     import ConfigParser
     import getpass
