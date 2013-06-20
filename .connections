@@ -1,7 +1,7 @@
-[mysql1]
-host: localhost
+[jose]
+host: 192.168.10.220 
 user: root
-pass: xx
+pass: 
 database: gca_31
 port: 3306
 engine: mysql
