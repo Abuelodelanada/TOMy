@@ -24,22 +24,22 @@ This file should have the following format
 
 ::
 
-  [mysql1]
-  host: localhost
-  user: root
-  pass: xx
-  database: gca_31
-  port: 3306
-  engine: mysql
-  autocommit: ON
+    [mysql1]
+    host: localhost
+    user: root
+    pass: xx
+    database: gca_31
+    port: 3306
+    engine: mysql
+    autocommit: ON
 
-  [mysql2]
-  host: localhost
-  user: root
-  database: gca_30
-  port: 3306
-  engine: mysql
-  autocommit: OFF
+    [mysql2]
+    host: localhost
+    user: root
+    database: gca_30
+    port: 3306
+    engine: mysql
+    autocommit: OFF
 
 
 
