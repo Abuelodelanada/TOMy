@@ -17,10 +17,34 @@ Now, I have implemented the following features:
 
 ![TOMy running](https://raw.github.com/Abuelodelanada/tomy/master/img/example.png "TOMy running")
 
+.connections files
+------------------
+
+This file should have the following format
+
+::
+
+  [mysql1]
+  host: localhost
+  user: root
+  pass: xx
+  database: gca_31
+  port: 3306
+  engine: mysql
+  autocommit: ON
+
+  [mysql2]
+  host: localhost
+  user: root
+  database: gca_30
+  port: 3306
+  engine: mysql
+  autocommit: OFF
+
+
 
 Wishlist
 --------
 
  - SQL syntax coloring.
  - Pretty print for multi-line querys.
-
