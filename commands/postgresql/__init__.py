@@ -2,4 +2,8 @@
 # -*- coding: utf-8 -*-
 
 
-from Desc import Desc
+def install(console):
+    """Install the commands."""
+    from Desc import Desc
+
+    Desc().install(console)
