@@ -5,7 +5,7 @@ import cmd2
 import sys
 import argparse
 import MySQLdb
-#import psycopg2
+import psycopg2
 import _mysql_exceptions
 import ConfigParser
 import getpass
@@ -15,7 +15,6 @@ import copy
 
 from EngineMySQL import *
 from EnginePostgreSQL import *
-from saw import DB
 import aliases
 
 logging.basicConfig(level=logging.FATAL)
@@ -222,48 +221,42 @@ class Console(cmd2.Cmd):
         db_engine = conn_data['engine']
         db_user = conn_data['user']
         db_host = conn_data['host']
-        db_name = conn_data['database']
+        db_db = conn_data['database']
         db_port = int(conn_data['port'])
 
-        self.db = DB(name=db_name, engine=db_engine,
-                username=db_user, password=db_passwd, host=db_host)
-        self.cursor = self.db.engine.connect()
-        self.cursors[conn_data['conn']] = self.cursor
-        self.connections[conn_data['conn']] = self.connection
+        if(db_engine == 'postgresql'):
+            self.connection = psycopg2.connect(user=db_user,
+                                               password=db_passwd,
+                                               database=db_db,
+                                               port=db_port,
+                                               host=db_host)
+            if(conn_data['autocommit'].upper() == 'ON'):
+                self.connection.autocommit = True
+            else:
+                self.connection.autocommit = False
+            self.cursor = self.connection.cursor()
+            self.cursors[conn_data['conn']] = self.cursor
+            self.connections[conn_data['conn']] = self.connection
+            self.postgresql_server_info()
 
-        #if(db_engine == 'postgresql'):
-        #    self.connection = psycopg2.connect(user=db_user,
-        #                                       password=db_passwd,
-        #                                       database=db_db,
-        #                                       port=db_port,
-        #                                       host=db_host)
-        #    if(conn_data['autocommit'].upper() == 'ON'):
-        #        self.connection.autocommit = True
-        #    else:
-        #        self.connection.autocommit = False
-        #    self.cursor = self.connection.cursor()
-        #    self.cursors[conn_data['conn']] = self.cursor
-        #    self.connections[conn_data['conn']] = self.connection
-        #    self.postgresql_server_info()
-
-        #elif(db_engine == 'mysql'):
-        #    self.connection = MySQLdb.connect(host=db_host,
-        #                                      user=db_user,
-        #                                      passwd=db_passwd,
-        #                                      db=db_db,
-        #                                      port=db_port)
-        #    if(conn_data['autocommit'].upper() == 'ON'):
-        #        self.connection.autocommit(True)
-        #    else:
-        #        self.connection.autocommit(False)
-        #    self.cursor = self.connection.cursor()
-        #    self.cursors[conn_data['conn']] = self.cursor
-        #    self.connections[conn_data['conn']] = self.connection
-        #    self.mysql_server_info()
-        #    a = EngineMySQL()
-        #    self.databases = EngineMySQL.get_databases(a, self.cursor)
-        #    self.tables = EngineMySQL.get_tables(a, self.cursor, db_db)
-        #    self.columns = EngineMySQL.get_columns(a, self.cursor, db_db)
+        elif(db_engine == 'mysql'):
+            self.connection = MySQLdb.connect(host=db_host,
+                                              user=db_user,
+                                              passwd=db_passwd,
+                                              db=db_db,
+                                              port=db_port)
+            if(conn_data['autocommit'].upper() == 'ON'):
+                self.connection.autocommit(True)
+            else:
+                self.connection.autocommit(False)
+            self.cursor = self.connection.cursor()
+            self.cursors[conn_data['conn']] = self.cursor
+            self.connections[conn_data['conn']] = self.connection
+            self.mysql_server_info()
+            a = EngineMySQL()
+            self.databases = EngineMySQL.get_databases(a, self.cursor)
+            self.tables = EngineMySQL.get_tables(a, self.cursor, db_db)
+            self.columns = EngineMySQL.get_columns(a, self.cursor, db_db)
 
     def install_engine_methods(self, engine):
         """
@@ -420,22 +413,22 @@ class Console(cmd2.Cmd):
         Executes query in engine
         """
         try:
-            rproxy = self.cursor.execute(query)
-            result = rproxy.fetchall()
-            rows_count = rproxy.rowcount
-            header = rproxy.context.cursor.description
+            self.cursor.execute(query)
+            header = self.cursor.description
+            result = self.cursor.fetchall()
 
-            #header = self.cursor.description
             if(header is not None):
                 self.format_output(header, result)
 
-            #if(self.connection_data['engine'] == 'mysql'):
-            #    rows_modified = self.connection.info()
-            #    if(rows_modified is not None):
-            #        print rows_modified + '\n'
-            #        #TODO: Is this the best site to do this?
-            #    else:
-            #        print str(rows_count) + ' rows\n'
+            rows_count = self.cursor.rowcount
+
+            if(self.connection_data['engine'] == 'mysql'):
+                rows_modified = self.connection.info()
+                if(rows_modified is not None):
+                    print rows_modified + '\n'
+                    #TODO: Is this the best site to do this?
+                else:
+                    print str(rows_count) + ' rows\n'
 
         except (_mysql_exceptions.DataError,
                 _mysql_exceptions.IntegrityError,
