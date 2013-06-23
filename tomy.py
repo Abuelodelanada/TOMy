@@ -13,6 +13,8 @@ import logging
 import commands
 import copy
 
+import ftrie
+
 from EngineMySQL import *
 from EnginePostgreSQL import *
 import aliases
@@ -122,8 +124,8 @@ class Console(cmd2.Cmd):
                 else:
                     db_port = args.port
             else:
-                sys.exit('%s is not a supported database engine')\
-                % (args.engine)
+                sys.exit('%s is not a supported database engine'
+                    % (args.engine,))
 
             try:
                 self.connection_data['host'] = db_host
@@ -254,9 +256,16 @@ class Console(cmd2.Cmd):
             self.connections[conn_data['conn']] = self.connection
             self.mysql_server_info()
             a = EngineMySQL()
-            self.databases = EngineMySQL.get_databases(a, self.cursor)
-            self.tables = EngineMySQL.get_tables(a, self.cursor, db_db)
-            self.columns = EngineMySQL.get_columns(a, self.cursor, db_db)
+            self.databases_tree = self.build_search_tree(
+                    EngineMySQL.get_databases(a, self.cursor))
+            self.tables_tree = self.build_search_tree(
+                    EngineMySQL.get_tables(a, self.cursor, db_db))
+            self.columns_tree = self.build_search_tree(
+                    EngineMySQL.get_columns(a, self.cursor, db_db))
+
+    def build_search_tree(self, data):
+        """Build a search tree from a list of data."""
+        return ftrie.WordTree(dict.fromkeys(map(unicode, data)))
 
     def install_engine_methods(self, engine):
         """Install the commands in a plugin-like mode."""

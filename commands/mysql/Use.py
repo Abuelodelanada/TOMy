@@ -13,15 +13,14 @@ class Use(commands.Command):
             self.console.connection_data['user'],
             self.console.connection_data['host'],
             self.console.connection_data['database'])
+
         a = EngineMySQL()
-        self.console.databases = EngineMySQL.get_databases(a,
-                                                           self.console.cursor)
-        self.console.tables = EngineMySQL.get_tables(a,
-                                                     self.console.cursor,
-                                                     stm)
-        self.console.columns = EngineMySQL.get_columns(a,
-                                                       self.console.cursor,
-                                                       stm)
+        self.console.databases_tree = self.console.build_search_tree(
+            EngineMySQL.get_databases(a, self.console.cursor))
+        self.console.tables_tree = self.console.build_search_tree(
+            EngineMySQL.get_tables(a, self.console.cursor, stm))
+        self.console.columns_tree = self.console.build_search_tree(
+            EngineMySQL.get_columns(a, self.console.cursor, stm))
 
     def help(self):
         help = """Change the database:
@@ -29,6 +28,6 @@ class Use(commands.Command):
         print help
 
     def complete(self, text, line, begidx, endidx):
-        candidates = self.console.databases[:]
-        completions = [t for t in candidates if t.startswith(text)]
+        result = self.console.databases_tree.search(text)
+        completions = [x[0] for x in result]  # discard payload
         return completions
