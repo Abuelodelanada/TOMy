@@ -259,22 +259,9 @@ class Console(cmd2.Cmd):
             self.columns = EngineMySQL.get_columns(a, self.cursor, db_db)
 
     def install_engine_methods(self, engine):
-        """
-        """
-        # Se instalan los comandos (tipo plugins)
-        # FIXME: Son sólo para MySQL, hay que instalar
-        #comandos en función del motor
-        if(engine == 'mysql'):
-            commands.mysql.Select().install(self)
-            commands.mysql.Insert().install(self)
-            commands.mysql.Show().install(self)
-            commands.mysql.Drop().install(self)
-            commands.mysql.Use().install(self)
-            commands.mysql.Desc().install(self)
-            commands.mysql.Delete().install(self)
-            commands.mysql.Set().install(self)
-        elif(engine == 'postgresql'):
-            commands.postgresql.Desc().install(self)
+        """Install the commands in a plugin-like mode."""
+        mod = getattr(commands, engine)
+        mod.install(self)
 
     def get_prompt(self, user, host, database='None', autocommit='ON'):
         """
