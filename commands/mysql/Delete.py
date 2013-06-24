@@ -34,6 +34,7 @@ class Delete(commands.Command):
                 """
 
     def complete(self, text, line, begidx, endidx):
-        candidates = self.console.tables + self.console.columns
-        completions = [t for t in candidates if t.startswith(text)]
+        rt = self.console.tables_tree.search(text)
+        rc = self.console.columns_tree.search(text)
+        completions = [x[0] for x in rt + rc]  # discard payload
         return completions
